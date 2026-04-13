@@ -620,6 +620,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const apiRequest = async (path, options = {}) => {
     const headers = new Headers(options.headers || {});
     const body = options.body;
+    const timeoutMs = Number(options.timeoutMs) > 0 ? Number(options.timeoutMs) : 15000;
 
     if (!(body instanceof FormData) && body !== undefined && !headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
@@ -629,11 +630,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       headers.set("Authorization", `Bearer ${await getBackendAccessToken()}`);
     }
 
-    const response = await fetch(`${BACKEND_API_BASE}${path}`, {
-      method: options.method || "GET",
-      headers,
-      body
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    let response;
+
+    try {
+      response = await fetch(`${BACKEND_API_BASE}${path}`, {
+        method: options.method || "GET",
+        headers,
+        body,
+        signal: controller.signal
+      });
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        throw new Error("The server is taking too long to respond. Please wait a few seconds and try again.");
+      }
+
+      throw error;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
 
     let payload = null;
 
@@ -1821,6 +1837,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const attachBookLinkGuards = () => {
     document.querySelectorAll(".book-link").forEach((link) => {
+      if (link.dataset.bookGuardBound === "true") {
+        return;
+      }
+
+      link.dataset.bookGuardBound = "true";
       link.addEventListener("click", (event) => {
         const activeSession = getSession();
 
@@ -1837,6 +1858,310 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search);
   let syncedSession = null;
+  let movieCatalog = {};
+  let prices = {};
+  let showCatalog = [];
+  let foodMenu = {};
+  let isUsingFallbackData = false;
+
+  const initSwiperIfAvailable = () => {
+    if (!document.querySelector(".mySwiper") || typeof window.Swiper !== "function") {
+      return;
+    }
+
+    if (document.querySelector(".mySwiper")?.dataset.swiperReady === "true") {
+      return;
+    }
+
+    document.querySelector(".mySwiper").dataset.swiperReady = "true";
+    new window.Swiper(".mySwiper", {
+      direction: "horizontal",
+      loop: true,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false
+      },
+      pagination: { el: ".swiper-pagination" },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev"
+      }
+    });
+  };
+
+  const bindPosterLinks = () => {
+    document.querySelectorAll(".poster-link").forEach((link) => {
+      if (link.dataset.trailerBound === "true") {
+        return;
+      }
+
+      link.dataset.trailerBound = "true";
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        openTrailerModal(link.getAttribute("href"), link.dataset.trailerName || "Trailer");
+      });
+    });
+  };
+
+  const updateAuthChrome = () => {
+    const session = syncedSession || getSession();
+    const authGreeting = document.querySelector("[data-auth-greeting]");
+    const authAction = document.querySelector("[data-auth-action]");
+    const adminOnlyLinks = document.querySelectorAll("[data-admin-link]");
+    const userOnlyLinks = document.querySelectorAll("[data-user-link]");
+
+    adminOnlyLinks.forEach((link) => {
+      link.hidden = !(session && session.role === "admin");
+    });
+
+    userOnlyLinks.forEach((link) => {
+      link.hidden = !(session && session.role === "user");
+    });
+
+    if (!authGreeting || !authAction) {
+      return;
+    }
+
+    authAction.onclick = null;
+
+    if (session) {
+      authGreeting.textContent = `Signed in as ${session.name} (${session.role}).`;
+      authAction.hidden = false;
+      authAction.textContent = "Logout";
+      authAction.onclick = async () => {
+        if (supabase) {
+          await supabase.auth.signOut();
+        }
+
+        clearSession();
+        clearTabSessionBridge();
+        if (window.location.pathname.includes("admin-dashboard.html")) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        window.location.reload();
+      };
+      return;
+    }
+
+    if (isFileProtocol) {
+      authGreeting.textContent = "This site is opened with file://. Use a local server or deployment URL for login, signup, admin access, and live Supabase data.";
+      authAction.hidden = true;
+      return;
+    }
+
+    authGreeting.textContent = "Browse movies and sign in to book your seats.";
+    authAction.hidden = true;
+  };
+
+  const renderShell = () => {
+    renderHomeMovieGrid(movieCatalog);
+    updateVisiblePrices(prices);
+    attachBookLinkGuards();
+    enhanceCustomSelects(document);
+    initSwiperIfAvailable();
+    bindPosterLinks();
+    initScrollReveal(document);
+    updateAuthChrome();
+  };
+
+  const initAuthPageInteractions = () => {
+    const loginForm = document.getElementById("loginForm");
+    const registerForm = document.getElementById("registerForm");
+    const authModeButtons = document.querySelectorAll("[data-auth-mode-target]");
+    const authModePanels = document.querySelectorAll("[data-auth-mode-panel]");
+
+    if (authModeButtons.length && authModePanels.length) {
+      const setAuthMode = (mode) => {
+        authModeButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.authModeTarget === mode);
+        });
+
+        authModePanels.forEach((panel) => {
+          panel.hidden = panel.dataset.authModePanel !== mode;
+          panel.classList.toggle("active", panel.dataset.authModePanel === mode);
+        });
+      };
+
+      authModeButtons.forEach((button) => {
+        if (button.dataset.authModeBound === "true") {
+          return;
+        }
+
+        button.dataset.authModeBound = "true";
+        button.addEventListener("click", () => {
+          setAuthMode(button.dataset.authModeTarget);
+        });
+      });
+    }
+
+    if (loginForm && loginForm.dataset.submitBound !== "true") {
+      const role = loginForm.dataset.role;
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const statusText = document.getElementById("loginStatus");
+      const redirectPath = params.get("redirect") || "index.html";
+
+      loginForm.dataset.submitBound = "true";
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value.trim();
+        if (isFileProtocol) {
+          statusText.textContent = "Open this site through http://localhost or a deployed URL. Supabase login is not reliable from file:// pages.";
+          statusText.classList.add("error");
+          return;
+        }
+
+        if (!isRemoteDataEnabled()) {
+          statusText.textContent = SUPABASE_SETUP_MESSAGE;
+          statusText.classList.add("error");
+          return;
+        }
+
+        statusText.textContent = "Signing in with Supabase...";
+        statusText.classList.remove("error");
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          statusText.textContent = error.message;
+          statusText.classList.add("error");
+          return;
+        }
+
+        try {
+          persistTabSessionBridge(data.session);
+          const profile = await ensureProfile(data.user);
+          const nextSession = buildSessionFromProfile(profile, data.user);
+
+          if (role === "admin" && nextSession.role !== "admin") {
+            await supabase.auth.signOut();
+            clearSession();
+            clearTabSessionBridge();
+            statusText.textContent = "This account does not have admin access.";
+            statusText.classList.add("error");
+            return;
+          }
+
+          if (role === "user" && nextSession.role === "admin") {
+            nextSession.role = "admin";
+          }
+
+          setSession(nextSession);
+          syncedSession = nextSession;
+          updateAuthChrome();
+          statusText.textContent = `${role === "admin" ? "Admin" : "User"} login successful. Redirecting...`;
+          statusText.classList.remove("error");
+
+          window.setTimeout(() => {
+            window.location.href = redirectPath;
+          }, 800);
+        } catch (profileError) {
+          statusText.textContent = profileError.message;
+          statusText.classList.add("error");
+        }
+      });
+    }
+
+    if (registerForm && registerForm.dataset.submitBound !== "true") {
+      const registerStatus = document.getElementById("registerStatus");
+      const registerNameInput = document.getElementById("registerName");
+      const registerEmailInput = document.getElementById("registerEmail");
+      const registerPasswordInput = document.getElementById("registerPassword");
+      const registerConfirmPasswordInput = document.getElementById("registerConfirmPassword");
+
+      registerForm.dataset.submitBound = "true";
+      registerForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const name = String(registerNameInput.value || "").trim();
+        const email = String(registerEmailInput.value || "").trim().toLowerCase();
+        const password = String(registerPasswordInput.value || "").trim();
+        const confirmPassword = String(registerConfirmPasswordInput.value || "").trim();
+        if (isFileProtocol) {
+          registerStatus.textContent = "Open this site through http://localhost or a deployed URL before creating a Supabase account.";
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        if (!name || !email || !password || !confirmPassword) {
+          registerStatus.textContent = "Fill in all account details.";
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        if (password.length < 6) {
+          registerStatus.textContent = "Password must be at least 6 characters.";
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          registerStatus.textContent = "Passwords do not match.";
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        if (!isRemoteDataEnabled()) {
+          registerStatus.textContent = SUPABASE_SETUP_MESSAGE;
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        registerStatus.textContent = "Creating your Supabase account...";
+        registerStatus.classList.remove("error");
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
+        });
+
+        if (error) {
+          registerStatus.textContent = error.message;
+          registerStatus.classList.add("error");
+          return;
+        }
+
+        try {
+          if (data.user && data.session) {
+            await ensureProfile(data.user, name, "user");
+          }
+
+          registerForm.reset();
+          registerStatus.textContent = data.session
+            ? "Account created successfully. You can sign in now."
+            : "Account created. Check your email inbox and confirm the account if email confirmation is enabled, then sign in.";
+          registerStatus.classList.remove("error");
+
+          const signInButton = [...authModeButtons].find((button) => button.dataset.authModeTarget === "signin");
+          if (signInButton) {
+            signInButton.click();
+          }
+        } catch (profileError) {
+          registerStatus.textContent = profileError.message;
+          registerStatus.classList.add("error");
+        }
+      });
+    }
+  };
+
+  const fallbackState = buildDefaultAppState();
+  movieCatalog = fallbackState.movieCatalog;
+  prices = fallbackState.prices;
+  showCatalog = fallbackState.showCatalog;
+  foodMenu = fallbackState.foodMenu;
+  isUsingFallbackData = true;
+
+  initAuthPageInteractions();
+  renderShell();
 
   if (supabase) {
     supabase.auth.onAuthStateChange((_event, session) => {
@@ -1861,26 +2186,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Supabase auth sync failed.", error);
   }
 
-  let movieCatalog = {};
-  let prices = {};
-  let showCatalog = [];
-  let foodMenu = {};
-  let isUsingFallbackData = false;
-
   try {
     const remoteState = await loadSupabaseAppState();
     movieCatalog = remoteState.movieCatalog;
     prices = remoteState.prices;
     showCatalog = remoteState.showCatalog;
     foodMenu = remoteState.foodMenu;
+    isUsingFallbackData = false;
   } catch (error) {
     console.error("Supabase data load failed.", error);
-    isUsingFallbackData = true;
-    const fallbackState = buildDefaultAppState();
-    movieCatalog = fallbackState.movieCatalog;
-    prices = fallbackState.prices;
-    showCatalog = fallbackState.showCatalog;
-    foodMenu = fallbackState.foodMenu;
   }
 
   let movieIds = Object.keys(movieCatalog);
@@ -1888,76 +2202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const requestedShowId = params.get("show");
   const incomingBookingDraft = parseJsonParam(params.get("draft"), null);
   const movie = movieCatalog[requestedMovie] ? requestedMovie : movieIds[0];
-  const session = syncedSession || getSession();
-
-  renderHomeMovieGrid(movieCatalog);
-  updateVisiblePrices(prices);
-  attachBookLinkGuards();
-  enhanceCustomSelects(document);
-
-  if (document.querySelector(".mySwiper")) {
-    new Swiper(".mySwiper", {
-      direction: "horizontal",
-      loop: true,
-      autoplay: {
-        delay: 3000,
-        disableOnInteraction: false
-      },
-      pagination: { el: ".swiper-pagination" },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev"
-      }
-    });
-  }
-
-  document.querySelectorAll(".poster-link").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      openTrailerModal(link.getAttribute("href"), link.dataset.trailerName || "Trailer");
-    });
-  });
-
-  const authGreeting = document.querySelector("[data-auth-greeting]");
-  const authAction = document.querySelector("[data-auth-action]");
-  const adminOnlyLinks = document.querySelectorAll("[data-admin-link]");
-  const userOnlyLinks = document.querySelectorAll("[data-user-link]");
-
-  adminOnlyLinks.forEach((link) => {
-    link.hidden = !(session && session.role === "admin");
-  });
-
-  userOnlyLinks.forEach((link) => {
-    link.hidden = !(session && session.role === "user");
-  });
-
-  if (authGreeting && authAction) {
-    if (session) {
-      authGreeting.textContent = `Signed in as ${session.name} (${session.role}).`;
-      authAction.hidden = false;
-      authAction.textContent = "Logout";
-      authAction.addEventListener("click", async () => {
-        await supabase.auth.signOut();
-        clearSession();
-        clearTabSessionBridge();
-        if (window.location.pathname.includes("admin-dashboard.html")) {
-          window.location.href = "index.html";
-          return;
-        }
-
-        window.location.reload();
-      });
-    } else if (isFileProtocol) {
-      authGreeting.textContent = "This site is opened with file://. Use a local server or deployment URL for login, signup, admin access, and live Supabase data.";
-      authAction.hidden = true;
-    } else if (isUsingFallbackData) {
-      authGreeting.textContent = "Browse movies and sign in to book your seats.";
-      authAction.hidden = true;
-    } else {
-      authGreeting.textContent = "Browse movies and sign in to book your seats.";
-      authAction.hidden = true;
-    }
-  }
+  renderShell();
 
   const detailsCard = document.getElementById("movieDetailsCard");
 
@@ -2606,181 +2851,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderSummary();
   }
 
-  const loginForm = document.getElementById("loginForm");
-  const registerForm = document.getElementById("registerForm");
-  const authModeButtons = document.querySelectorAll("[data-auth-mode-target]");
-  const authModePanels = document.querySelectorAll("[data-auth-mode-panel]");
-
-  if (authModeButtons.length && authModePanels.length) {
-    const setAuthMode = (mode) => {
-      authModeButtons.forEach((button) => {
-        button.classList.toggle("active", button.dataset.authModeTarget === mode);
-      });
-
-      authModePanels.forEach((panel) => {
-        panel.hidden = panel.dataset.authModePanel !== mode;
-        panel.classList.toggle("active", panel.dataset.authModePanel === mode);
-      });
-    };
-
-    authModeButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        setAuthMode(button.dataset.authModeTarget);
-      });
-    });
-  }
-
-  if (loginForm) {
-    const role = loginForm.dataset.role;
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const statusText = document.getElementById("loginStatus");
-    const redirectPath = params.get("redirect") || "index.html";
-
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const email = emailInput.value.trim().toLowerCase();
-      const password = passwordInput.value.trim();
-      if (isFileProtocol) {
-        statusText.textContent = "Open this site through http://localhost or a deployed URL. Supabase login is not reliable from file:// pages.";
-        statusText.classList.add("error");
-        return;
-      }
-
-      if (!isRemoteDataEnabled()) {
-        statusText.textContent = SUPABASE_SETUP_MESSAGE;
-        statusText.classList.add("error");
-        return;
-      }
-
-      statusText.textContent = "Signing in with Supabase...";
-      statusText.classList.remove("error");
-
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        statusText.textContent = error.message;
-        statusText.classList.add("error");
-        return;
-      }
-
-      try {
-        persistTabSessionBridge(data.session);
-        const profile = await ensureProfile(data.user);
-        const nextSession = buildSessionFromProfile(profile, data.user);
-
-        if (role === "admin" && nextSession.role !== "admin") {
-          await supabase.auth.signOut();
-          clearSession();
-          clearTabSessionBridge();
-          statusText.textContent = "This account does not have admin access.";
-          statusText.classList.add("error");
-          return;
-        }
-
-        if (role === "user" && nextSession.role === "admin") {
-          nextSession.role = "admin";
-        }
-
-        setSession(nextSession);
-        statusText.textContent = `${role === "admin" ? "Admin" : "User"} login successful. Redirecting...`;
-        statusText.classList.remove("error");
-
-        window.setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 800);
-      } catch (profileError) {
-        statusText.textContent = profileError.message;
-        statusText.classList.add("error");
-      }
-    });
-  }
-
-  if (registerForm) {
-    const registerStatus = document.getElementById("registerStatus");
-    const registerNameInput = document.getElementById("registerName");
-    const registerEmailInput = document.getElementById("registerEmail");
-    const registerPasswordInput = document.getElementById("registerPassword");
-    const registerConfirmPasswordInput = document.getElementById("registerConfirmPassword");
-
-    registerForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const name = String(registerNameInput.value || "").trim();
-      const email = String(registerEmailInput.value || "").trim().toLowerCase();
-      const password = String(registerPasswordInput.value || "").trim();
-      const confirmPassword = String(registerConfirmPasswordInput.value || "").trim();
-      if (isFileProtocol) {
-        registerStatus.textContent = "Open this site through http://localhost or a deployed URL before creating a Supabase account.";
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      if (!name || !email || !password || !confirmPassword) {
-        registerStatus.textContent = "Fill in all account details.";
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      if (password.length < 6) {
-        registerStatus.textContent = "Password must be at least 6 characters.";
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        registerStatus.textContent = "Passwords do not match.";
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      if (!isRemoteDataEnabled()) {
-        registerStatus.textContent = SUPABASE_SETUP_MESSAGE;
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      registerStatus.textContent = "Creating your Supabase account...";
-      registerStatus.classList.remove("error");
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name
-          }
-        }
-      });
-
-      if (error) {
-        registerStatus.textContent = error.message;
-        registerStatus.classList.add("error");
-        return;
-      }
-
-      try {
-        if (data.user && data.session) {
-          await ensureProfile(data.user, name, "user");
-        }
-
-        registerForm.reset();
-        registerStatus.textContent = data.session
-          ? "Account created successfully. You can sign in now."
-          : "Account created. Check your email inbox and confirm the account if email confirmation is enabled, then sign in.";
-        registerStatus.classList.remove("error");
-
-        const signInButton = [...authModeButtons].find((button) => button.dataset.authModeTarget === "signin");
-        if (signInButton) {
-          signInButton.click();
-        }
-      } catch (profileError) {
-        registerStatus.textContent = profileError.message;
-        registerStatus.classList.add("error");
-      }
-    });
-  }
+  initAuthPageInteractions();
 
   const adminPanel = document.getElementById("adminPriceForm");
   const adminFoodPanel = document.getElementById("adminFoodPriceForm");
