@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Movie Dekho</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page admin-page admin-page-movies">
+
+<header>
+<h1><a href="index.html" class="brand-link">Movie Dekho Admin</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="admin-dashboard.html">Admin</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+</header>
+
+<section class="auth-strip">
+<p data-auth-greeting>Admin access only.</p>
+<button type="button" class="auth-action" data-auth-action hidden></button>
+</section>
+
+<section class="admin-view-switch-wrap">
+<div class="admin-view-switch">
+<button type="button" class="admin-view-link active" data-admin-view-target="movies">Movies</button>
+<button type="button" class="admin-view-link" data-admin-view-target="food">Food</button>
+<button type="button" class="admin-view-link" data-admin-view-target="schedules">Schedules</button>
+</div>
+</section>
+
+<main class="admin-shell">
+<section class="admin-view-panel active" data-admin-view-panel="movies">
+<h2>Manage Movies</h2>
+<p>Add a new movie with poster, trailer, summary, genre, and prices. Every movie you add here will appear in the booking flow like the existing listings.</p>
+
+<section class="admin-section">
+<div class="admin-section-head">
+<h3>Add Movie</h3>
+<p>Poster uploads are stored with your Supabase movie records so they stay available across devices.</p>
+</div>
+
+<form id="adminMovieForm" class="movie-admin-form">
+<div class="admin-form-grid">
+<label class="price-field" for="movieName">Movie Name
+<input id="movieName" name="name" type="text" placeholder="Enter movie name" required>
+</label>
+<label class="price-field" for="movieGenre">Genre
+<input id="movieGenre" name="genre" type="text" placeholder="Action, Drama" required>
+</label>
+<label class="price-field" for="moviePoster">Poster
+<input id="moviePoster" name="poster" type="file" accept="image/*" required>
+</label>
+<label class="price-field" for="movieTrailer">Trailer Link
+<input id="movieTrailer" name="trailerUrl" type="url" placeholder="https://youtube.com/...">
+</label>
+<label class="price-field" for="movieDuration">Duration
+<input id="movieDuration" name="duration" type="text" placeholder="2h 20m">
+</label>
+<label class="price-field" for="movieCertificate">Certificate
+<input id="movieCertificate" name="certificate" type="text" placeholder="UA">
+</label>
+<label class="price-field" for="movieReleaseDate">Release Date
+<input id="movieReleaseDate" name="releaseDate" type="text" placeholder="05 Apr, 2026">
+</label>
+<label class="price-field" for="movieLanguages">Languages
+<input id="movieLanguages" name="languages" type="text" placeholder="Hindi, Tamil">
+</label>
+<label class="price-field" for="movieFormats">Formats
+<input id="movieFormats" name="formats" type="text" placeholder="2D, IMAX">
+</label>
+<label class="price-field" for="movieRating">Audience Rating
+<input id="movieRating" name="rating" type="text" placeholder="8.9/10">
+</label>
+<label class="price-field" for="movieVotes">Votes
+<input id="movieVotes" name="votes" type="text" placeholder="120K+ Votes">
+</label>
+<label class="price-field" for="movieCriticRating">Critic Rating
+<input id="movieCriticRating" name="criticRating" type="text" placeholder="4.2/5">
+</label>
+<label class="price-field price-field-wide" for="movieSummary">Summary
+<textarea id="movieSummary" name="summary" rows="5" placeholder="Write the movie summary here..." required></textarea>
+</label>
+<label class="price-field price-field-wide" for="movieHighlights">Highlights
+<textarea id="movieHighlights" name="highlights" rows="4" placeholder="Add 3 highlights, separated by commas or new lines"></textarea>
+</label>
+</div>
+
+<div class="price-tier-grid admin-price-tier-grid">
+<label class="price-field" for="movieRegularPrice">Regular
+<input id="movieRegularPrice" name="regular" type="number" min="1" placeholder="220" required>
+</label>
+<label class="price-field" for="movieSilverPrice">Silver
+<input id="movieSilverPrice" name="silver" type="number" min="1" placeholder="300" required>
+</label>
+<label class="price-field" for="movieGoldPrice">Gold
+<input id="movieGoldPrice" name="gold" type="number" min="1" placeholder="370" required>
+</label>
+</div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Add Movie</button>
+</div>
+
+<p id="adminMovieStatus" class="login-status"></p>
+</form>
+</section>
+
+<div class="admin-section-head">
+<h3>Manage Movie Prices</h3>
+<p>Update ticket prices for both default and admin-added movies.</p>
+</div>
+
+<form id="adminPriceForm" class="price-form">
+<div class="price-grid" id="adminPriceGrid"></div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Save Prices</button>
+<button type="button" class="secondary-action" id="resetPrices">Reset Default Prices</button>
+</div>
+
+<p id="adminStatus" class="login-status"></p>
+</form>
+</section>
+
+<section class="admin-view-panel" data-admin-view-panel="food" hidden>
+<h2>Manage Food Items</h2>
+<p>Manage snack items, prices, and descriptions here without leaving the admin dashboard.</p>
+
+<section class="admin-section">
+<div class="admin-section-head">
+<h3>Add Food Item</h3>
+<p>Manage names, categories, descriptions, badges, and prices for the snacks page.</p>
+</div>
+
+<form id="adminFoodForm" class="movie-admin-form">
+<div class="admin-form-grid">
+<label class="price-field" for="foodName">Food Name
+<input id="foodName" name="name" type="text" placeholder="Classic Club Sandwich" required>
+</label>
+<label class="price-field" for="foodCategory">Category
+<input id="foodCategory" name="category" type="text" placeholder="Sandwich" required>
+</label>
+<label class="price-field" for="foodPoster">Poster
+<input id="foodPoster" name="poster" type="file" accept="image/*" required>
+</label>
+<label class="price-field" for="foodBadge">Badge
+<input id="foodBadge" name="badge" type="text" placeholder="Chef Pick">
+</label>
+<label class="price-field" for="foodPrice">Price
+<input id="foodPrice" name="price" type="number" min="1" placeholder="180" required>
+</label>
+<label class="price-field price-field-wide" for="foodDescription">Description
+<textarea id="foodDescription" name="description" rows="4" placeholder="Fresh sandwich with crunchy veggies and sauces." required></textarea>
+</label>
+</div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Add Food Item</button>
+</div>
+
+<p id="adminFoodStatus" class="login-status"></p>
+</form>
+</section>
+
+<div class="admin-section-head">
+<h3>Manage Food Prices</h3>
+<p>Update the snack menu shown before ticket confirmation.</p>
+</div>
+
+<form id="adminFoodPriceForm" class="price-form">
+<div class="price-grid" id="adminFoodGrid"></div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Save Food Prices</button>
+<button type="button" class="secondary-action" id="resetFoodItems">Reset Default Food Menu</button>
+</div>
+
+<p id="adminFoodPriceStatus" class="login-status"></p>
+</form>
+</section>
+
+<section class="admin-view-panel" data-admin-view-panel="schedules" hidden>
+<h2>Manage Movie Schedules</h2>
+<p>Control the days, timings, halls, and formats for each movie before users reach the seat layout page.</p>
+
+<section class="admin-section">
+<div class="admin-section-head">
+<h3>Add Show</h3>
+<p>Create a new show entry by selecting the movie, day, hall, format, and time.</p>
+</div>
+
+<form id="adminScheduleForm" class="movie-admin-form">
+<div class="admin-form-grid">
+<label class="price-field" for="scheduleMovie">Movie
+<select id="scheduleMovie" name="movieId" required></select>
+</label>
+<label class="price-field" for="scheduleDate">Date
+<input id="scheduleDate" name="date" type="date" required>
+</label>
+<label class="price-field" for="scheduleTime">Time
+<input id="scheduleTime" name="time" type="time" required>
+</label>
+<label class="price-field" for="scheduleHall">Hall
+<select id="scheduleHall" name="hallId" required>
+<option value="1">Hall 1</option>
+<option value="2">Hall 2</option>
+<option value="3">Hall 3</option>
+</select>
+</label>
+<label class="price-field" for="scheduleFormat">Format
+<select id="scheduleFormat" name="format" required>
+<option value="2D">2D</option>
+<option value="3D">3D</option>
+<option value="4DX">4DX</option>
+</select>
+</label>
+</div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Add Show</button>
+<button type="button" class="secondary-action" id="resetSchedules">Reset Default Schedule</button>
+</div>
+
+<p id="adminScheduleStatus" class="login-status"></p>
+</form>
+</section>
+
+<div class="admin-section-head">
+<h3>Manage Existing Shows</h3>
+<p>Update any current show directly below, then save the schedule list.</p>
+</div>
+
+<div class="admin-schedule-toolbar">
+<label class="price-field" for="scheduleFilterMovie">Filter by Movie
+<select id="scheduleFilterMovie" name="scheduleFilterMovie">
+<option value="all">All Movies</option>
+</select>
+</label>
+<label class="price-field" for="scheduleSearch">Search Shows
+<input id="scheduleSearch" name="scheduleSearch" type="search" placeholder="Search by movie, hall, date, format, or time">
+</label>
+</div>
+
+<form id="adminScheduleManageForm" class="price-form">
+<div class="price-grid" id="adminScheduleGrid"></div>
+
+<div class="price-actions">
+<button type="submit" class="login-submit">Save Schedule</button>
+</div>
+
+<p id="adminScheduleManageStatus" class="login-status"></p>
+</form>
+</section>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

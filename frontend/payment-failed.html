@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Failed</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="confirm-page">
+
+<header>
+<h1><a href="index.html" class="brand-link">Payment Failed</a></h1>
+</header>
+
+<section class="confirmation payment-failed-card">
+<h2>Payment Failed</h2>
+<p>Your ticket was not booked because the payment did not complete.</p>
+<p id="paymentFailureDetail">No money has been confirmed for this booking.</p>
+<div class="confirmation-actions">
+<a id="retryPaymentLink" href="confirm.html">Try Payment Again</a>
+<a href="index.html" class="secondary-confirmation-link">Back to Home</a>
+</div>
+</section>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="payment-failed.js"></script>
+</body>
+</html>

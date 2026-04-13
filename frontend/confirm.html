@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking Confirmation</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="confirm-page">
+
+<header>
+<h1><a href="index.html" class="brand-link">Booking Confirmation</a></h1>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<section class="confirmation confirmation-loading" id="confirmationLoading">
+<div class="confirmation-spinner" aria-hidden="true"></div>
+<h2 id="confirmationLoadingTitle">Confirming your booking</h2>
+<p id="confirmationLoadingMessage">Please wait while we verify your payment and reserve your seats.</p>
+<p id="confirmationError" class="login-status error"></p>
+</section>
+
+<section class="confirmation is-hidden" id="confirmationReceipt">
+<h2>Booking Confirmed</h2>
+<p>Thank you for booking with Movie Dekho.</p>
+<p>Your show: <span id="showSummary"></span></p>
+<p>Your ticket price: <span id="ticketPrice"></span></p>
+<p>Your selected seats: <span id="seatList"></span></p>
+<p>Your snacks: <span id="foodList"></span></p>
+<p>Snacks total: <span id="foodAmount"></span></p>
+<p>Total paid: <span id="totalAmount"></span></p>
+<a href="index.html">Back to Home</a>
+</section>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="confirm.js"></script>
+
+</body>
+</html>

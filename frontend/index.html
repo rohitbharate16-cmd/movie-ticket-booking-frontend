@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Dekho!</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
+</head>
+<body>
+
+<header>
+<h1><a href="index.html" class="brand-link">Movie Dekho</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="user-dashboard.html" data-user-link hidden>Dashboard</a>
+<a href="admin-dashboard.html" data-admin-link hidden>Admin</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<section class="auth-strip">
+<p data-auth-greeting>Browse movies and sign in to book your seats.</p>
+<button type="button" class="auth-action" data-auth-action hidden></button>
+</section>
+
+<div class="swiper mySwiper">
+<div class="swiper-wrapper">
+<div class="swiper-slide">
+<div class="poster-card">
+<img src="https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/1.jpeg" alt="Batman poster">
+<a
+  href="https://www.youtube.com/watch?v=mqqft2x_Aa4"
+  class="poster-link"
+  data-trailer-name="Batman trailer"
+  target="_blank"
+  rel="noopener noreferrer">
+<span class="poster-link-label">Watch Batman Trailer</span>
+</a>
+</div>
+</div>
+<div class="swiper-slide">
+<div class="poster-card">
+<img src="https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/2.jpeg" alt="Spider-Man poster">
+<a
+  href="https://www.youtube.com/watch?v=JfVOs4VSpmA"
+  class="poster-link"
+  data-trailer-name="Spider-Man trailer"
+  target="_blank"
+  rel="noopener noreferrer">
+<span class="poster-link-label">Watch Spider-Man Trailer</span>
+</a>
+</div>
+</div>
+<div class="swiper-slide">
+<div class="poster-card">
+<img src="https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/x.jpeg" alt="Iron Man poster">
+<a
+  href="https://youtu.be/Ke1Y3P9D0Bc?si=E0ET2s8hNqxdmzlt"
+  class="poster-link"
+  data-trailer-name="Iron Man trailer"
+  target="_blank"
+  rel="noopener noreferrer">
+<span class="poster-link-label">Watch Iron Man Trailer</span>
+</a>
+</div>
+</div>
+
+</div>
+<div class="swiper-pagination"></div>
+<div class="swiper-button-next"></div>
+<div class="swiper-button-prev"></div>
+</div>
+
+<section class="movies">
+<h2 class="now-showing">Now Showing</h2>
+<div class="movie-filters" id="movieFilters"></div>
+<div class="movie-grid" id="movieGrid"></div>
+</section>
+
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Seats</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+<h1><a href="index.html" class="brand-link" id="movieTitle">Select Your Seats</a></h1>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<section class="seat-layout">
+<div class="booking-summary">
+<p id="ticketPrice">Regular: Rs. 0 | Silver: Rs. 0 | Gold: Rs. 0</p>
+<p id="totalPrice">Total Amount: Rs. 0</p>
+</div>
+
+<div class="screen-wrap">
+<div class="screen-arc"></div>
+<div class="screen-label">SCREEN</div>
+</div>
+<div class="seat-sections" id="seatContainer"></div>
+<p id="selectedInfo">Selected Seats: 0</p>
+<div class="booking-next-step">
+<div class="booking-choice-card">
+<p class="booking-choice-kicker">Before confirmation</p>
+<h3>How do you want to continue?</h3>
+<div class="booking-choice-actions">
+<button type="button" id="claimFreeTicketBtn" class="secondary-action free-ticket-action">Claim Free Ticket</button>
+<button type="button" id="directConfirmBtn" class="secondary-action">Continue to Payment</button>
+<button type="button" id="makeTastierBtn" class="secondary-action">Make Your Movie Tastier</button>
+</div>
+<p id="seatActionMessage" class="booking-choice-message" hidden></p>
+<p class="free-ticket-note">One free seat is available per user, per movie, every day. Snacks and extra seats are paid normally.</p>
+</div>
+</div>
+</section>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

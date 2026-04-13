@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Details</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="details-page">
+
+<header>
+<h1><a href="index.html" class="brand-link" id="detailsHeaderTitle">Movie Details</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<main class="details-shell">
+<section class="details-card" id="movieDetailsCard">
+<div class="details-poster-wrap">
+<img id="detailsPoster" class="details-poster" src="" alt="Movie poster">
+<button type="button" id="watchTrailerBtn" class="details-trailer-btn">Watch Trailer</button>
+</div>
+
+<div class="details-content">
+<div class="details-title-row">
+<div>
+<p class="details-kicker">Now Showing</p>
+<h2 id="detailsTitle">Movie Title</h2>
+</div>
+<span id="detailsStatus" class="details-status">In Cinemas</span>
+</div>
+
+<div class="details-rating-row">
+<span class="details-rating-star">&#9733;</span>
+<strong id="detailsRating">0.0/10</strong>
+<span id="detailsVotes" class="details-votes">(0 votes)</span>
+</div>
+
+<p id="detailsMeta" class="details-meta"></p>
+
+<div class="details-chip-row">
+<span id="detailsFormats" class="details-chip"></span>
+<span id="detailsLanguages" class="details-chip"></span>
+</div>
+
+<section class="details-block">
+<h3>Story</h3>
+<p id="detailsSummary"></p>
+</section>
+
+<section class="details-block">
+<h3>Quick Info</h3>
+<div class="details-facts">
+<div class="details-fact">
+<span>Genre</span>
+<strong id="detailsGenre"></strong>
+</div>
+<div class="details-fact">
+<span>Critic Rating</span>
+<strong id="detailsCriticRating"></strong>
+</div>
+<div class="details-fact">
+<span>Ticket Price</span>
+<strong id="detailsPrice"></strong>
+</div>
+</div>
+</section>
+
+<section class="details-block">
+<h3>Why Watch</h3>
+<ul class="details-highlights" id="detailsHighlights"></ul>
+</section>
+</div>
+</section>
+</main>
+
+<div class="details-footer">
+<a id="detailsBookBtn" href="#" class="details-book-btn">Book Tickets</a>
+</div>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snacks & Beverages</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="food-page">
+
+<header>
+<h1><a href="index.html" class="brand-link" id="foodPageTitle">Snacks for Your Movie</a></h1>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<main class="food-shell">
+<section class="food-hero">
+<h2>Make Your Movie Tastier</h2>
+<p>Choose popcorn, fries, burgers, drinks, tea, or coffee before we confirm your tickets.</p>
+</section>
+
+<section class="food-filters" id="foodFilters"></section>
+
+<section class="food-recommended">
+<div class="food-grid" id="foodGrid"></div>
+</section>
+
+<aside class="food-cart">
+<div class="food-cart-card">
+<h3>Order summary</h3>
+<p id="foodCartMovie">Make your movie tastier before ticket confirmation.</p>
+<div id="foodSelectionList" class="food-selection-list"></div>
+<div class="food-bill">
+<div><span>Snacks total</span><strong id="foodTotal">Rs. 0</strong></div>
+<div><span>Selected items</span><strong id="foodItemCount">0</strong></div>
+</div>
+<div class="food-actions">
+<a id="skipFoodBtn" class="food-secondary-action" href="confirm.html">Skip snacks and pay</a>
+<button id="foodContinueBtn" type="button">Continue to Payment</button>
+</div>
+<p class="food-note">You can add posters for these food items later and this layout will use them easily.</p>
+</div>
+</aside>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

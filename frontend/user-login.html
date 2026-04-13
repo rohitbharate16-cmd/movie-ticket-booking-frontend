@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Login | Movie Dekho</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+<header>
+<h1><a href="index.html" class="brand-link">Movie Dekho</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="user-dashboard.html">Dashboard</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+</header>
+
+<main class="login-shell">
+<section class="login-card">
+<span class="login-badge">User Access</span>
+<div class="auth-mode-switch">
+<button type="button" class="auth-mode-btn active" data-auth-mode-target="signin">Sign In</button>
+<button type="button" class="auth-mode-btn" data-auth-mode-target="signup">Create Account</button>
+</div>
+
+<div class="auth-mode-panel active" data-auth-mode-panel="signin">
+<h2>Sign in to book tickets</h2>
+<p>Use your saved customer account to continue to seat selection and bookings.</p>
+
+<form id="loginForm" class="login-form" data-role="user">
+<label for="email">Email
+<input id="email" name="email" type="email" placeholder="Enter your email" required>
+</label>
+
+<label for="password">Password
+<input id="password" name="password" type="password" placeholder="Enter your password" required>
+</label>
+
+<button type="submit" class="login-submit">Login as User</button>
+<p id="loginStatus" class="login-status"></p>
+</form>
+
+<p class="login-note">Use your Supabase email and password to continue booking.</p>
+</div>
+
+<div class="auth-mode-panel" data-auth-mode-panel="signup" hidden>
+<h2>Create your account</h2>
+<p>Create a Supabase account here and sign in to continue to booking.</p>
+
+<form id="registerForm" class="login-form">
+<label for="registerName">Full Name
+<input id="registerName" name="name" type="text" placeholder="Enter your full name" required>
+</label>
+
+<label for="registerEmail">Email
+<input id="registerEmail" name="email" type="email" placeholder="Enter your email" required>
+</label>
+
+<label for="registerPassword">Password
+<input id="registerPassword" name="password" type="password" placeholder="Create a password" required>
+</label>
+
+<label for="registerConfirmPassword">Confirm Password
+<input id="registerConfirmPassword" name="confirmPassword" type="password" placeholder="Confirm your password" required>
+</label>
+
+<button type="submit" class="login-submit">Create Account</button>
+<p id="registerStatus" class="login-status"></p>
+</form>
+</div>
+</section>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

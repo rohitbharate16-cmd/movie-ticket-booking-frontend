@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Show | Movie Dekho</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="showtime-page">
+
+<header>
+<h1><a href="index.html" class="brand-link" id="showtimeHeaderTitle">Select Show</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<section class="auth-strip">
+<p data-auth-greeting>Choose your date, time, format, and hall before seats.</p>
+<button type="button" class="auth-action" data-auth-action hidden></button>
+</section>
+
+<main class="showtime-shell">
+<section class="showtime-hero" id="showtimeHero">
+<div class="showtime-poster-wrap">
+<img id="showtimePoster" class="showtime-poster" src="" alt="Movie poster">
+</div>
+<div class="showtime-content">
+<p class="showtime-kicker">Booking Schedule</p>
+<h2 id="showtimeTitle">Movie Name</h2>
+<p id="showtimeMeta" class="showtime-meta"></p>
+<p id="showtimePrice" class="showtime-price"></p>
+</div>
+</section>
+
+<section class="showtime-board">
+<div class="admin-section-head">
+<h3>Choose Date, Time, and Hall</h3>
+<p>The next page will show the screen and seat layout for your selected show.</p>
+</div>
+<div id="showtimeGrid" class="showtime-grid"></div>
+</section>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | Movie Dekho</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+
+<header>
+<h1><a href="index.html" class="brand-link">Movie Dekho</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="admin-dashboard.html">Admin</a>
+<a href="user-login.html">User Login</a>
+<a href="admin-login.html">Admin Login</a>
+</nav>
+</header>
+
+<main class="login-shell">
+<section class="login-card">
+<span class="login-badge">Admin Access</span>
+<h2>Sign in to manage shows</h2>
+<p>This separate admin entry keeps management access distinct from regular movie bookings.</p>
+
+<form id="loginForm" class="login-form" data-role="admin">
+<label for="email">Email
+<input id="email" name="email" type="email" placeholder="Enter admin email" required>
+</label>
+
+<label for="password">Password
+<input id="password" name="password" type="password" placeholder="Enter admin password" required>
+</label>
+
+<button type="submit" class="login-submit">Login as Admin</button>
+<p id="loginStatus" class="login-status"></p>
+</form>
+
+<p class="login-note">Use a Supabase account that has the `admin` role in `profiles`.</p>
+</section>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="script.js"></script>
+</body>
+</html>

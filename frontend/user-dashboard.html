@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard | Movie Dekho</title>
+<script>
+  (function() {
+    const saved = localStorage.getItem('movieDekhoTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page user-dashboard-page">
+
+<header>
+<h1><a href="index.html" class="brand-link">Movie Dekho</a></h1>
+<nav>
+<a href="index.html">Home</a>
+<a href="user-dashboard.html">Dashboard</a>
+<a href="user-login.html">User Login</a>
+</nav>
+<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
+</header>
+
+<section class="auth-strip">
+<p data-dashboard-greeting>Loading your dashboard.</p>
+<button type="button" class="auth-action" id="dashboardLogoutBtn" hidden>Logout</button>
+</section>
+
+<main class="dashboard-shell">
+<section class="dashboard-hero">
+<div>
+<span class="login-badge">Your Tickets</span>
+<h2>User Dashboard</h2>
+<p>Track your Movie Dekho bookings and daily free ticket claims.</p>
+</div>
+<a href="index.html" class="dashboard-primary-link">Book another movie</a>
+</section>
+
+<p id="dashboardFlash" class="dashboard-flash" hidden></p>
+
+<section class="dashboard-stats" id="dashboardStats">
+<article>
+<span>Total bookings</span>
+<strong id="bookingCount">0</strong>
+</article>
+<article>
+<span>Free tickets claimed</span>
+<strong id="freeTicketCount">0</strong>
+</article>
+<article>
+<span>Total paid</span>
+<strong id="dashboardPaidTotal">Rs. 0</strong>
+</article>
+</section>
+
+<section class="dashboard-bookings">
+<div class="admin-section-head">
+<h3>Recent Bookings</h3>
+<p>Confirmed tickets appear here after payment or a free ticket claim.</p>
+</div>
+<div id="dashboardBookingList" class="dashboard-booking-list">
+<p class="movie-grid-empty">Loading bookings...</p>
+</div>
+</section>
+</main>
+
+<script type="module" src="navigation.js"></script>
+<script type="module" src="user-dashboard.js"></script>
+</body>
+</html>
