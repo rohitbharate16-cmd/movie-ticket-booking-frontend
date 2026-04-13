@@ -20,6 +20,12 @@ STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY
 CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
 ```
 
+For deployment, include your frontend domain as well, for example:
+
+```env
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500,https://movie-ticket-booking-frontend-one.vercel.app
+```
+
 Configure the frontend Supabase client by copying `frontend/supabase-config.example.js` to `frontend/supabase-config.js`, then replacing the placeholder values. For deployed/server-rendered pages, you can instead set this before loading module scripts:
 
 ```html
@@ -46,3 +52,18 @@ npm run dev
 ```
 
 Serve the `frontend` folder from an allowed origin, such as `http://127.0.0.1:5500`.
+
+## Deployment Notes
+
+The frontend API helper falls back to:
+
+- local: `http://127.0.0.1:4000/api`
+- production: `https://movie-ticket-booking-backend-5u83.onrender.com/api`
+
+You can override this in deployed HTML before loading the module scripts:
+
+```html
+<script>
+window.__BACKEND_API_BASE__ = "https://movie-ticket-booking-backend-5u83.onrender.com";
+</script>
+```
