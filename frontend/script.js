@@ -1836,7 +1836,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       movieGrid.innerHTML = visibleEntries.length
         ? visibleEntries.map(([movieId, movieData]) => `
-            <div class="movie-card" data-movie-card="${escapeHtml(movieId)}">
+            <div class="movie-card" data-movie-card="${escapeHtml(movieId)}" data-details-href="movie-details.html?movie=${encodeURIComponent(movieId)}">
               <img class="movie-card-reveal-item" src="${escapeHtml(movieData.image)}" alt="${escapeHtml(movieData.name)} poster">
               <h3 class="movie-card-reveal-item">${escapeHtml(movieData.name)}</h3>
               <p class="movie-genre movie-card-reveal-item">${escapeHtml(getMovieGenres(movieData).join(" | "))}</p>
@@ -1853,6 +1853,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           saveHomeScrollState(link.dataset.homeNavMovie || "");
         });
       });
+      bindMovieCardLinks(saveHomeScrollState);
       attachBookLinkGuards();
       initScrollReveal(movieGrid);
       restoreHomeScrollState();
@@ -1988,7 +1989,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const bindPosterLinks = () => {
-    document.querySelectorAll(".poster-link").forEach((link) => {
+    document.querySelectorAll(".poster-link, .poster-media-link").forEach((link) => {
       if (link.dataset.trailerBound === "true") {
         return;
       }
@@ -1997,6 +1998,49 @@ document.addEventListener("DOMContentLoaded", async () => {
       link.addEventListener("click", (event) => {
         event.preventDefault();
         openTrailerModal(link.getAttribute("href"), link.dataset.trailerName || "Trailer");
+      });
+    });
+  };
+
+  const bindMovieCardLinks = (saveHomeScrollState) => {
+    document.querySelectorAll("[data-movie-card]").forEach((card) => {
+      if (card.dataset.cardNavBound === "true") {
+        return;
+      }
+
+      card.dataset.cardNavBound = "true";
+      card.tabIndex = 0;
+      card.setAttribute("role", "link");
+
+      const openDetailsPage = () => {
+        const detailsHref = card.dataset.detailsHref;
+        if (!detailsHref) {
+          return;
+        }
+
+        saveHomeScrollState(card.dataset.movieCard || "");
+        window.location.href = detailsHref;
+      };
+
+      card.addEventListener("click", (event) => {
+        if (event.target instanceof Element && event.target.closest("a, button, input, textarea, select, label")) {
+          return;
+        }
+
+        openDetailsPage();
+      });
+
+      card.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+
+        if (event.target instanceof Element && event.target.closest("a, button, input, textarea, select, label")) {
+          return;
+        }
+
+        event.preventDefault();
+        openDetailsPage();
       });
     });
   };
