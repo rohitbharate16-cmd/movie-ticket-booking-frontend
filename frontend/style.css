@@ -1741,6 +1741,7 @@ body.login-page {
 .movie-price-card-body h3 {
   margin-bottom: 0.35rem;
   line-height: 1.15;
+  font-size: clamp(1.55rem, 2vw, 2rem);
 }
 
 .price-tier-grid {
@@ -1976,7 +1977,7 @@ body.login-page {
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.4rem;
 }
 
 .movie-price-card-controls {
@@ -2040,8 +2041,11 @@ body.login-page {
 
 .movie-price-card-body p {
   margin-top: 0;
-  margin-bottom: 0.9rem;
-  color: #aebbd3;
+  margin-bottom: 0.7rem;
+  color: #d9e5f8;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .movie-delete-btn {
@@ -2352,7 +2356,7 @@ body.trailer-modal-open {
 .trailer-modal-close {
   position: absolute;
   top: 12px;
-  left: 12px;
+  right: 12px;
   z-index: 10;
   width: 44px;
   height: 44px;
@@ -2376,7 +2380,7 @@ body.trailer-modal-open {
 
 .trailer-modal-header {
   margin-bottom: 14px;
-  padding-left: 52px;
+  padding-right: 52px;
 }
 
 .trailer-modal-kicker {
@@ -2434,7 +2438,7 @@ body.trailer-modal-open {
 
   .trailer-modal-close {
     top: 10px;
-    left: 10px;
+    right: 10px;
     width: 40px;
     height: 40px;
   }
