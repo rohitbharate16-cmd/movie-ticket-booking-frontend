@@ -1739,7 +1739,7 @@ body.login-page {
 }
 
 .movie-price-card-body h3 {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.14rem;
   line-height: 1.15;
   font-size: clamp(1.55rem, 2vw, 2rem);
 }
@@ -2041,11 +2041,11 @@ body.login-page {
 
 .movie-price-card-body p {
   margin-top: 0;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.45rem;
   color: #d9e5f8;
-  font-size: 1.02rem;
+  font-size: 0.94rem;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .movie-delete-btn {
