@@ -1126,6 +1126,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const buildBookingDraft = (movieId, activeShow, seats = [], snacks = []) => ({
     movieId,
     movieName: movieCatalog[movieId]?.name || movieId,
+    moviePoster: movieCatalog[movieId]?.image || "",
+    movieCertificate: movieCatalog[movieId]?.certificate || "",
     show: getShowStorageDetails(activeShow),
     seats,
     snacks
@@ -2346,21 +2348,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Tab session restore failed.", error);
   }
 
-  try {
-    syncedSession = await syncSessionFromSupabase();
-  } catch (error) {
-    console.error("Supabase auth sync failed.", error);
+  const [sessionSyncResult, remoteStateResult] = await Promise.allSettled([
+    syncSessionFromSupabase(),
+    loadSupabaseAppState()
+  ]);
+
+  if (sessionSyncResult.status === "fulfilled") {
+    syncedSession = sessionSyncResult.value;
+  } else {
+    console.error("Supabase auth sync failed.", sessionSyncResult.reason);
   }
 
-  try {
-    const remoteState = await loadSupabaseAppState();
+  if (remoteStateResult.status === "fulfilled") {
+    const remoteState = remoteStateResult.value;
     movieCatalog = remoteState.movieCatalog;
     prices = remoteState.prices;
     showCatalog = remoteState.showCatalog;
     foodMenu = remoteState.foodMenu;
     isUsingFallbackData = false;
-  } catch (error) {
-    console.error("Supabase data load failed.", error);
+  } else {
+    console.error("Supabase data load failed.", remoteStateResult.reason);
   }
 
   let movieIds = Object.keys(movieCatalog);
@@ -2588,9 +2595,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const seatTierPrices = activeShow.priceSet;
-    const savedSelectedSeatIds = [];
     let selectedSeats = [];
-    let bookedSeats = await getBookedSeatIdsForShow(activeShow.showId);
+    let bookedSeatIds = new Set();
+    const seatElementsById = new Map();
     const seatGroups = [
       { id: "regular", title: "Regular Seats", description: `${activeShow.seatGroups.regular} seats`, count: activeShow.seatGroups.regular, labelPrefix: "R" },
       { id: "silver", title: "Silver Seats", description: `${activeShow.seatGroups.silver} seats`, count: activeShow.seatGroups.silver, labelPrefix: "S" },
@@ -2660,6 +2667,73 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 3200);
     };
 
+    const syncBookedSeats = (nextBookedSeatIds) => {
+      bookedSeatIds = nextBookedSeatIds;
+
+      seatElementsById.forEach((seat, seatId) => {
+        const isBooked = bookedSeatIds.has(seatId);
+
+        seat.classList.toggle("booked", isBooked);
+
+        if (isBooked) {
+          seat.classList.remove("selected");
+        }
+      });
+
+      const remainingSelectedSeats = selectedSeats.filter((seat) => !bookedSeatIds.has(seat.id.toUpperCase()));
+      const removedSeatCount = selectedSeats.length - remainingSelectedSeats.length;
+
+      if (removedSeatCount > 0) {
+        selectedSeats = remainingSelectedSeats;
+        updateSelectionSummary();
+      }
+    };
+
+    const createSeatNode = (group, seatLabel, seatNumberInRow) => {
+      const seatId = seatLabel.toUpperCase();
+      const seat = document.createElement("div");
+
+      seat.classList.add("seat");
+
+      if (group.id !== "regular") {
+        seat.classList.add(group.id);
+      }
+
+      seat.textContent = seatNumberInRow;
+      seat.title = `${group.title} ${seatLabel}`;
+      seatElementsById.set(seatId, seat);
+
+      if (bookedSeatIds.has(seatId)) {
+        seat.classList.add("booked");
+      }
+
+      seat.addEventListener("click", () => {
+        if (seat.classList.contains("booked")) {
+          return;
+        }
+
+        seat.classList.toggle("selected");
+
+        const selectedSeat = {
+          id: seatId,
+          label: seatLabel,
+          tier: group.id,
+          price: seatTierPrices[group.id]
+        };
+        const existingIndex = selectedSeats.findIndex((entry) => entry.id === seatId);
+
+        if (existingIndex >= 0) {
+          selectedSeats = selectedSeats.filter((entry) => entry.id !== seatId);
+        } else {
+          selectedSeats.push(selectedSeat);
+        }
+
+        updateSelectionSummary();
+      });
+
+      return seat;
+    };
+
     seatGroups.forEach((group) => {
       const section = document.createElement("section");
       const heading = document.createElement("h3");
@@ -2693,47 +2767,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         rowLabelRight.textContent = rowLabel;
 
         for (let sideIndex = 0; sideIndex < leftBlockCount; sideIndex += 1) {
-          const currentSeatNumber = seatNumber;
           const seatLabel = `${rowLabel}${seatNumberInRow}`;
-          const seatId = seatLabel;
-          const seat = document.createElement("div");
-          seat.classList.add("seat");
-
-          if (group.id !== "regular") {
-            seat.classList.add(group.id);
-          }
-
-          seat.textContent = seatNumberInRow;
-          seat.title = `${group.title} ${seatLabel}`;
-
-          if (bookedSeats.includes(seatId.toUpperCase())) {
-            seat.classList.add("booked");
-          }
-
-          seat.addEventListener("click", () => {
-            if (seat.classList.contains("booked")) {
-              return;
-            }
-
-            seat.classList.toggle("selected");
-
-            const selectedSeat = {
-              id: seatId,
-              label: seatLabel,
-              tier: group.id,
-              price: seatTierPrices[group.id]
-            };
-            const existingIndex = selectedSeats.findIndex((entry) => entry.id === seatId);
-
-            if (existingIndex >= 0) {
-              selectedSeats = selectedSeats.filter((entry) => entry.id !== seatId);
-            } else {
-              selectedSeats.push(selectedSeat);
-            }
-
-            updateSelectionSummary();
-          });
-
+          const seat = createSeatNode(group, seatLabel, seatNumberInRow);
           rowSeats.appendChild(seat);
           seatNumber += 1;
           seatNumberInRow += 1;
@@ -2746,47 +2781,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         for (let sideIndex = 0; sideIndex < rightBlockCount; sideIndex += 1) {
-          const currentSeatNumber = seatNumber;
           const seatLabel = `${rowLabel}${seatNumberInRow}`;
-          const seatId = seatLabel;
-          const seat = document.createElement("div");
-          seat.classList.add("seat");
-
-          if (group.id !== "regular") {
-            seat.classList.add(group.id);
-          }
-
-          seat.textContent = seatNumberInRow;
-          seat.title = `${group.title} ${seatLabel}`;
-
-          if (bookedSeats.includes(seatId.toUpperCase())) {
-            seat.classList.add("booked");
-          }
-
-          seat.addEventListener("click", () => {
-            if (seat.classList.contains("booked")) {
-              return;
-            }
-
-            seat.classList.toggle("selected");
-
-            const selectedSeat = {
-              id: seatId,
-              label: seatLabel,
-              tier: group.id,
-              price: seatTierPrices[group.id]
-            };
-            const existingIndex = selectedSeats.findIndex((entry) => entry.id === seatId);
-
-            if (existingIndex >= 0) {
-              selectedSeats = selectedSeats.filter((entry) => entry.id !== seatId);
-            } else {
-              selectedSeats.push(selectedSeat);
-            }
-
-            updateSelectionSummary();
-          });
-
+          const seat = createSeatNode(group, seatLabel, seatNumberInRow);
           rowSeats.appendChild(seat);
           seatNumber += 1;
           seatNumberInRow += 1;
@@ -2802,6 +2798,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     updateSelectionSummary();
+
+    getBookedSeatIdsForShow(activeShow.showId)
+      .then((remoteBookedSeats) => {
+        syncBookedSeats(new Set(remoteBookedSeats.map((seatId) => String(seatId).trim().toUpperCase())));
+      })
+      .catch((error) => {
+        console.error("Unable to apply booked seats to the seat layout.", error);
+      });
 
     const claimFreeTicketBtn = document.getElementById("claimFreeTicketBtn");
 

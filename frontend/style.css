@@ -1229,6 +1229,119 @@ body.confirm-page::before {
   border: 1px solid rgba(255, 255, 255, 0.24);
 }
 
+.confirmation-banner {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+
+.confirmation-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(122, 183, 255, 0.22), rgba(45, 224, 195, 0.24));
+  border: 1px solid rgba(122, 183, 255, 0.2);
+  color: #dffcff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.confirmation-ticket-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.9fr);
+  gap: 18px;
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(4, 13, 25, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.confirmation-ticket-left {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.confirmation-poster-wrap {
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  min-height: 220px;
+}
+
+.confirmation-poster {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.confirmation-ticket-copy h3 {
+  margin: 0 0 10px;
+  color: #fff1ca;
+  font-size: 1.55rem;
+}
+
+.confirmation-show-summary {
+  margin-bottom: 16px;
+  color: #d2deef;
+  line-height: 1.6;
+}
+
+.confirmation-ticket-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.confirmation-ticket-meta div,
+.confirmation-amount-card {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.confirmation-ticket-meta span,
+.confirmation-amount-card span {
+  display: block;
+  margin-bottom: 6px;
+  color: #a7c6e8;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.confirmation-ticket-meta strong,
+.confirmation-amount-card strong {
+  color: #fff8e2;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.confirmation-ticket-right {
+  display: grid;
+  gap: 12px;
+}
+
+body.confirm-page .confirmation-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
+body.confirm-page .confirmation-actions a {
+  width: 100%;
+  margin-top: 0;
+}
+
 .page-back-wrap {
   width: 100%;
   margin: 0;
@@ -2939,6 +3052,40 @@ body.confirm-page::before {
 .confirmation {
   max-width: 560px;
   border-radius: 24px;
+}
+
+body.confirm-page #confirmationReceipt {
+  max-width: 980px;
+}
+
+@media (max-width: 900px) {
+  .confirmation-ticket-card,
+  .confirmation-ticket-left {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmation-poster-wrap,
+  .confirmation-poster {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .confirmation {
+    margin: 24px auto;
+    padding: 22px;
+  }
+
+  .confirmation-ticket-meta,
+  body.confirm-page .confirmation-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmation-poster-wrap,
+  .confirmation-poster {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 
 body.details-page {

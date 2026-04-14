@@ -265,6 +265,27 @@ const loadMovieCatalog = async () => {
   });
 };
 
+const ensureMovieCatalogLoaded = (() => {
+  let pendingCatalogRequest = null;
+
+  return async () => {
+    if (movieCatalog.size) {
+      return movieCatalog;
+    }
+
+    if (!pendingCatalogRequest) {
+      pendingCatalogRequest = loadMovieCatalog()
+        .catch((error) => {
+          pendingCatalogRequest = null;
+          throw error;
+        });
+    }
+
+    await pendingCatalogRequest;
+    return movieCatalog;
+  };
+})();
+
 const fetchImageAsDataUrl = async (url) => {
   if (!url) {
     return null;
@@ -394,15 +415,20 @@ const ensureTicketLibraries = async () => {
   };
 };
 
-const buildQrPayload = (booking) => JSON.stringify({
-  bookingId: buildBookingCode(booking),
-  movie: booking.movie_name || booking.movie_id || "Movie Dekho",
-  showDate: booking.show_date || "",
-  showTime: booking.show_time || "",
-  hall: booking.hall_name || "",
-  seats: getSeatLabels(booking),
-  totalAmount: Number(booking.total_amount) || 0
-});
+const getPosterDataUrl = async (booking) => {
+  const movieMeta = getMovieMeta(booking);
+  const posterUrl = movieMeta?.image || booking.movie_poster || booking.movie_image || booking.image || "";
+
+  if (!posterUrl) {
+    return null;
+  }
+
+  try {
+    return await fetchImageAsDataUrl(posterUrl);
+  } catch (error) {
+    return null;
+  }
+};
 
 const withTimeout = (promise, ms, message) =>
   Promise.race([
@@ -413,21 +439,11 @@ const withTimeout = (promise, ms, message) =>
   ]);
 
 const downloadTicketPdf = async (booking) => {
-  const { jsPDF, QRCode } = await ensureTicketLibraries();
+  await ensureMovieCatalogLoaded().catch(() => null);
+  const { jsPDF } = await ensureTicketLibraries();
 
   const movieMeta = getMovieMeta(booking);
-  let qrCodeDataUrl = null;
-
-  if (QRCode?.toDataURL) {
-    qrCodeDataUrl = await QRCode.toDataURL(buildQrPayload(booking), {
-      width: 220,
-      margin: 1,
-      color: {
-        dark: "#07111f",
-        light: "#ffffff"
-      }
-    });
-  }
+  const posterDataUrl = await getPosterDataUrl(booking);
 
   const doc = new jsPDF({
     orientation: "portrait",
@@ -454,9 +470,10 @@ const downloadTicketPdf = async (booking) => {
   const rightRailX = cardX + cardWidth - 52;
   const topSectionY = cardY + 28;
   const bottomSectionY = cardY + 248;
-  const qrX = cardX + 34;
-  const qrY = bottomSectionY + 26;
-  const qrSize = 132;
+  const posterX = cardX + 34;
+  const posterY = bottomSectionY + 26;
+  const posterWidth = 132;
+  const posterHeight = 176;
   const detailsX = cardX + 220;
   const totalBarY = cardY + cardHeight - 82;
 
@@ -490,40 +507,49 @@ const downloadTicketPdf = async (booking) => {
   doc.circle(cardX, bottomSectionY - 10, 10, "F");
   doc.circle(cardX + cardWidth, bottomSectionY - 10, 10, "F");
 
-  if (qrCodeDataUrl) {
-    doc.addImage(qrCodeDataUrl, "PNG", qrX, qrY, qrSize, qrSize, undefined, "FAST");
+  if (posterDataUrl) {
+    doc.addImage(
+      posterDataUrl,
+      getImageFormat(posterDataUrl),
+      posterX,
+      posterY,
+      posterWidth,
+      posterHeight,
+      undefined,
+      "FAST"
+    );
   } else {
     doc.setFillColor(245, 245, 245);
-    drawRoundedRect(doc, qrX, qrY, qrSize, qrSize, 14, "F");
+    drawRoundedRect(doc, posterX, posterY, posterWidth, posterHeight, 14, "F");
     doc.setTextColor(80, 92, 108);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("M-Ticket", qrX + (qrSize / 2), qrY + 60, { align: "center" });
+    doc.text("Movie Poster", posterX + (posterWidth / 2), posterY + 78, { align: "center" });
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(ticketCode, qrX + (qrSize / 2), qrY + 84, { align: "center" });
+    doc.text(ticketCode, posterX + (posterWidth / 2), posterY + 100, { align: "center" });
   }
 
   doc.setTextColor(7, 17, 31);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(18);
-  doc.text(`${seatLabels.length || 1} Ticket(s)`, detailsX, qrY + 20);
+  doc.text(`${seatLabels.length || 1} Ticket(s)`, detailsX, posterY + 20);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(30);
-  doc.text(screenLine, detailsX, qrY + 70, {
+  doc.text(screenLine, detailsX, posterY + 70, {
     maxWidth: cardWidth - 280
   });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(22);
-  doc.text(seatLine, detailsX, qrY + 102, {
+  doc.text(seatLine, detailsX, posterY + 102, {
     maxWidth: cardWidth - 280
   });
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text(`BOOKING ID: ${ticketCode}`, detailsX, qrY + 142, {
+  doc.text(`BOOKING ID: ${ticketCode}`, detailsX, posterY + 142, {
     maxWidth: cardWidth - 280
   });
 
@@ -601,26 +627,34 @@ const renderBookings = (bookings) => {
 const initDashboard = async () => {
   try {
     const authContext = await getDashboardAuthContext();
-    const profile = await loadDashboardProfile(authContext);
+    const fallbackProfile = authContext.profile || {
+      full_name: "",
+      email: authContext.user?.email || "",
+      role: "user"
+    };
 
-    try {
-      await loadMovieCatalog();
-    } catch (error) {
-      // Ticket download can still work without posters.
-    }
+    greeting.textContent = `Signed in as ${fallbackProfile.full_name || fallbackProfile.email || "Movie Lover"}.`;
+    logoutBtn.hidden = false;
+    showFlash();
+    renderBookings([]);
 
-    if (profile.role !== "user") {
+    const profilePromise = loadDashboardProfile(authContext)
+      .catch(() => fallbackProfile);
+    const bookingsPromise = loadDashboardBookings(authContext);
+    const movieCatalogPromise = ensureMovieCatalogLoaded()
+      .catch(() => null);
+
+    const profile = await profilePromise;
+
+    if (profile?.role !== "user") {
       window.location.href = "user-login.html?redirect=user-dashboard.html";
       return;
     }
 
     greeting.textContent = `Signed in as ${profile.full_name || profile.email || "Movie Lover"}.`;
-    logoutBtn.hidden = false;
-    showFlash();
-    renderBookings([]);
 
     try {
-      const { bookings, source } = await loadDashboardBookings(authContext);
+      const { bookings, source } = await bookingsPromise;
       renderBookings(bookings);
 
       if (source === "supabase") {
@@ -630,6 +664,8 @@ const initDashboard = async () => {
       bookingList.innerHTML = '<p class="movie-grid-empty">We could not load your bookings right now. Your account session is still active, so please try refreshing in a moment.</p>';
       showDashboardMessage(error.message || "Failed to fetch the bookings data.", true);
     }
+
+    await movieCatalogPromise;
   } catch (error) {
     bookingList.innerHTML = `<p class="movie-grid-empty">${escapeHtml(error.message)}</p>`;
 

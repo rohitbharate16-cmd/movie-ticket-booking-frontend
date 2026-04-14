@@ -19,6 +19,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   const PENDING_BOOKING_KEY = "movieDekhoPendingBookingDraft";
   const DASHBOARD_FLASH_KEY = "movieDekhoDashboardFlash";
   const checkoutDraftKey = (id) => `movieDekhoCheckoutDraft:${id}`;
+  const confirmationPoster = document.getElementById("confirmationPoster");
+  const dashboardTicketLink = document.getElementById("dashboardTicketLink");
+
+  const formatCurrency = (value) => `Rs. ${Number(value) || 0}`;
+
+  const buildBookingCode = (booking) => String(
+    booking?.stripe_session_id
+    || booking?.id
+    || booking?.created_at
+    || booking?.movie_id
+    || sessionId
+    || "MOVIEDEKHO"
+  )
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(-8)
+    .toUpperCase()
+    || "MOVIEDEKHO";
 
   const parseJsonParam = (value, fallback = null) => {
     try {
@@ -57,31 +74,109 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadingMessage.textContent = message;
   };
 
+  const publicApiRequest = async (path) => {
+    const response = await fetch(`${BACKEND_API_BASE}${path}`);
+    let payload = null;
+
+    try {
+      payload = await response.json();
+    } catch (error) {
+      payload = null;
+    }
+
+    if (!response.ok) {
+      throw new Error(payload?.error || `Request failed with status ${response.status}`);
+    }
+
+    return payload;
+  };
+
+  const getMoviePoster = async (booking) => {
+    if (draft?.moviePoster) {
+      return draft.moviePoster;
+    }
+
+    const directPoster = booking?.movie_poster || booking?.movie_image || booking?.image;
+
+    if (directPoster) {
+      return directPoster;
+    }
+
+    const movieId = booking?.movie_id || draft?.movieId || movie;
+
+    if (!movieId) {
+      return "";
+    }
+
+    try {
+      const movies = await publicApiRequest("/movies");
+      const movieMatch = (Array.isArray(movies) ? movies : []).find((entry) => entry.id === movieId);
+      return movieMatch?.image || "";
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const getShowSummaryLine = (booking) => {
+    const showDate = booking?.show_date || bookingContext?.dateLabel || "";
+    const showTime = booking?.show_time || bookingContext?.timeLabel || "";
+    const hall = booking?.hall_name || bookingContext?.hallName || "";
+    const format = booking?.show_format || bookingContext?.format || "";
+
+    return [showDate, showTime, hall, format].filter(Boolean).join(" | ") || "Show details unavailable";
+  };
+
   const showError = (message) => {
     errorNode.textContent = message;
     loadingPanel.classList.remove("is-hidden");
     receiptPanel.classList.add("is-hidden");
   };
 
-  const showReceipt = () => {
+  const showReceipt = async (booking = null) => {
+    const posterUrl = await getMoviePoster(booking);
+    const bookingCode = buildBookingCode(booking);
+    const movieTitle = [
+      booking?.movie_name || draft?.movieName || movie || "Movie Dekho",
+      booking?.movie_certificate || draft?.movieCertificate || ""
+    ].filter(Boolean).join(" ");
+    const showSummary = getShowSummaryLine(booking);
+    const paidAmount = Number(booking?.total_amount);
+
+    document.getElementById("confirmationMovieTitle").textContent = movieTitle;
+    document.getElementById("confirmationShowSummary").textContent = showSummary;
+    document.getElementById("confirmationBookingCode").textContent = bookingCode;
     document.getElementById("seatList").textContent = seats.length ? seats.map((seat) => seat.label || seat.id).join(", ") : "None";
     document.getElementById("ticketPrice").textContent = seats.length
-      ? `Selected seats total: Rs. ${totalAmount}`
+      ? formatCurrency(totalAmount)
       : "No seats selected";
-    document.getElementById("showSummary").textContent = bookingContext
-      ? `${bookingContext.dateLabel} | ${bookingContext.timeLabel} | ${bookingContext.hallName} | ${bookingContext.format}`
-      : "Show details unavailable";
+    document.getElementById("showSummary").textContent = showSummary;
     document.getElementById("foodList").textContent = snacks.length
       ? snacks.map((item) => `${item.name} x${item.quantity}`).join(", ")
       : "No snacks added";
-    document.getElementById("foodAmount").textContent = `Rs. ${snacksTotal}`;
-    document.getElementById("totalAmount").textContent = `Rs. ${grandTotal}`;
+    document.getElementById("foodAmount").textContent = formatCurrency(snacksTotal);
+    document.getElementById("totalAmount").textContent = formatCurrency(
+      Number.isFinite(paidAmount) ? paidAmount : grandTotal
+    );
+
+    if (confirmationPoster) {
+      if (posterUrl) {
+        confirmationPoster.src = posterUrl;
+        confirmationPoster.alt = `${movieTitle} poster`;
+      } else {
+        confirmationPoster.removeAttribute("src");
+        confirmationPoster.alt = "Movie poster unavailable";
+      }
+    }
+
+    if (dashboardTicketLink) {
+      dashboardTicketLink.href = `user-dashboard.html?booking=${encodeURIComponent(booking?.id || bookingCode)}`;
+    }
 
     loadingPanel.classList.add("is-hidden");
     receiptPanel.classList.remove("is-hidden");
   };
 
-  const redirectToDashboard = (booking, fallbackMessage) => {
+  const storeDashboardFlash = (booking, fallbackMessage) => {
     const freeDiscount = Number(booking?.free_ticket_discount) || 0;
     const message = freeDiscount > 0
       ? `Booking confirmed. Your free ticket saved Rs. ${freeDiscount}.`
@@ -96,15 +191,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       // Dashboard flash is optional.
     }
-
-    setLoadingCopy("Booking successful", "Taking you to your dashboard now.");
-    errorNode.textContent = "";
-    loadingPanel.classList.remove("is-hidden");
-    receiptPanel.classList.add("is-hidden");
-
-    window.setTimeout(() => {
-      window.location.href = "user-dashboard.html";
-    }, 1400);
   };
 
   const getAccessToken = async () => {
@@ -183,7 +269,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Storage cleanup is best-effort only.
       }
 
-      redirectToDashboard(checkout.booking, "Free ticket claimed. Booking confirmed.");
+      storeDashboardFlash(checkout.booking, "Free ticket claimed. Booking confirmed.");
+      await showReceipt(checkout.booking);
       return;
     }
 
@@ -215,7 +302,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Storage cleanup is best-effort only.
     }
 
-    redirectToDashboard(booking, "Payment successful. Booking confirmed.");
+    storeDashboardFlash(booking, "Payment successful. Booking confirmed.");
+    await showReceipt(booking);
   };
 
   confirmBooking().catch((error) => {

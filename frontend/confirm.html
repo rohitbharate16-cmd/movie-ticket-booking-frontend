@@ -20,15 +20,60 @@
 </section>
 
 <section class="confirmation is-hidden" id="confirmationReceipt">
-<h2>Booking Confirmed</h2>
-<p>Thank you for booking with Movie Dekho.</p>
-<p>Your show: <span id="showSummary"></span></p>
-<p>Your ticket price: <span id="ticketPrice"></span></p>
-<p>Your selected seats: <span id="seatList"></span></p>
-<p>Your snacks: <span id="foodList"></span></p>
-<p>Snacks total: <span id="foodAmount"></span></p>
-<p>Total paid: <span id="totalAmount"></span></p>
-<a href="index.html">Back to Home</a>
+<div class="confirmation-banner">
+<span class="confirmation-badge">Booking Confirmed</span>
+<h2>Thank you for your purchase!</h2>
+<p>We have saved your movie ticket successfully. You can review everything below and then head to your dashboard to download it anytime.</p>
+</div>
+
+<article class="confirmation-ticket-card">
+<div class="confirmation-ticket-left">
+<div class="confirmation-poster-wrap">
+<img id="confirmationPoster" class="confirmation-poster" src="" alt="Movie poster">
+</div>
+<div class="confirmation-ticket-copy">
+<h3 id="confirmationMovieTitle">Movie Dekho</h3>
+<p id="confirmationShowSummary" class="confirmation-show-summary"></p>
+<div class="confirmation-ticket-meta">
+<div>
+<span>Seats</span>
+<strong id="seatList"></strong>
+</div>
+<div>
+<span>Booking ID</span>
+<strong id="confirmationBookingCode"></strong>
+</div>
+<div>
+<span>Snacks</span>
+<strong id="foodList"></strong>
+</div>
+<div>
+<span>Paid</span>
+<strong id="totalAmount"></strong>
+</div>
+</div>
+</div>
+</div>
+<div class="confirmation-ticket-right">
+<div class="confirmation-amount-card">
+<span>Ticket amount</span>
+<strong id="ticketPrice"></strong>
+</div>
+<div class="confirmation-amount-card">
+<span>Snacks total</span>
+<strong id="foodAmount"></strong>
+</div>
+<div class="confirmation-amount-card">
+<span>Show details</span>
+<strong id="showSummary"></strong>
+</div>
+</div>
+</article>
+
+<div class="confirmation-actions">
+<a href="user-dashboard.html" id="dashboardTicketLink">Go to Dashboard and Download Ticket</a>
+<a href="index.html" class="secondary-confirmation-link">Back to Home</a>
+</div>
 </section>
 
 <script type="module" src="navigation.js"></script>
