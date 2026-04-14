@@ -418,13 +418,22 @@ const ensureTicketLibraries = async () => {
 const getPosterDataUrl = async (booking) => {
   const movieMeta = getMovieMeta(booking);
   const posterUrl = movieMeta?.image || booking.movie_poster || booking.movie_image || booking.image || "";
+  const movieId = String(booking.movie_id || "").trim();
 
-  if (!posterUrl) {
+  if (posterUrl) {
+    try {
+      return await fetchImageAsDataUrl(posterUrl);
+    } catch (error) {
+      // Fall through to the same-origin backend proxy below.
+    }
+  }
+
+  if (!movieId) {
     return null;
   }
 
   try {
-    return await fetchImageAsDataUrl(posterUrl);
+    return await fetchImageAsDataUrl(`${BACKEND_API_BASE}/movies/${encodeURIComponent(movieId)}/poster`);
   } catch (error) {
     return null;
   }
