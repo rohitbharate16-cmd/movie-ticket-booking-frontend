@@ -42,6 +42,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     "cappuccino": "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cappuccino.png",
     "cold-coffee": "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cold%20coffee.png"
   };
+  const LEGACY_FOOD_IMAGE_ALIASES = {
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/salted%20popcorn.jpg": DEFAULT_FOOD_IMAGES["classic-popcorn"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cheese%20popcorn.jpg": DEFAULT_FOOD_IMAGES["cheese-popcorn"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/carmel%20popcorn.jpg": DEFAULT_FOOD_IMAGES["caramel-popcorn"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/periperi%20popcorn.jpg": DEFAULT_FOOD_IMAGES["peri-peri-popcorn"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/salted%20fries.jpg": DEFAULT_FOOD_IMAGES["classic-fries"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/periperi%20fries.jpg": DEFAULT_FOOD_IMAGES["peri-peri-fries"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cheese%20loaded%20fries.jpg": DEFAULT_FOOD_IMAGES["cheese-fries"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/masala%20fries.jpg": DEFAULT_FOOD_IMAGES["masala-fries"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/samosa.jpg": DEFAULT_FOOD_IMAGES["samosa"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/vadapav.jpg": DEFAULT_FOOD_IMAGES["vadapav"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/kachori.jpg": DEFAULT_FOOD_IMAGES["kachori"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/kachi%20dabeli.jpg": DEFAULT_FOOD_IMAGES["kachi-dabeli"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/veg%20burger.jpg": DEFAULT_FOOD_IMAGES["veg-burger"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/paneer%20burger.jpg": DEFAULT_FOOD_IMAGES["paneer-burger"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/crispy%20chicken%20burger.jpg": DEFAULT_FOOD_IMAGES["chicken-burger"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/veg%20sandwich.jpg": DEFAULT_FOOD_IMAGES["veg-sandwich"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/grilled%20cheese%20sandwich.jpg": DEFAULT_FOOD_IMAGES["grilled-cheese-sandwich"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/paneer%20ticka%20sandwich.jpg": DEFAULT_FOOD_IMAGES["paneer-sandwich"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/sweet%20corn%20sandwich.jpg": DEFAULT_FOOD_IMAGES["corn-sandwich"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/coca%20cola.jpg": DEFAULT_FOOD_IMAGES["cola"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/pepsi.jpg": DEFAULT_FOOD_IMAGES["pepsi"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/sprite.jpg": DEFAULT_FOOD_IMAGES["sprite"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/fanta.jpg": DEFAULT_FOOD_IMAGES["fanta"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/iced%20tea.jpg": DEFAULT_FOOD_IMAGES["iced-tea"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/masala%20tea.jpg": DEFAULT_FOOD_IMAGES["masala-tea"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/green%20tea.jpg": DEFAULT_FOOD_IMAGES["green-tea"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/Coffee.jpg": DEFAULT_FOOD_IMAGES["normal-coffee"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cappuccino.jpg": DEFAULT_FOOD_IMAGES["cappuccino"],
+    "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/Food/cold%20coffee.jpg": DEFAULT_FOOD_IMAGES["cold-coffee"]
+  };
   const STORAGE_BUCKETS = {
     moviePosters: "movie-posters"
   };
@@ -465,6 +496,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     id: fallbackId
   });
 
+  const normalizeFoodImageUrl = (imageUrl, fallbackId) => {
+    const normalized = String(imageUrl || "").trim();
+    if (!normalized) {
+      return DEFAULT_FOOD_IMAGES[fallbackId] || "";
+    }
+
+    return LEGACY_FOOD_IMAGE_ALIASES[normalized] || normalized;
+  };
+
   const normalizeFoodEntry = (item, fallbackId) => ({
     id: fallbackId,
     name: String(item?.name || "Untitled Food Item"),
@@ -472,7 +512,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     price: Number(item?.price) > 0 ? Math.round(Number(item.price)) : 100,
     badge: String(item?.badge || "Fresh"),
     artLabel: String(item?.artLabel || fallbackId || "FOD").trim().slice(0, 3).toUpperCase(),
-    image: String(item?.image || DEFAULT_FOOD_IMAGES[fallbackId] || "").trim(),
+    image: normalizeFoodImageUrl(item?.image, fallbackId),
     description: String(item?.description || "Fresh snack for your movie time."),
     isCustom: Boolean(item?.isCustom)
   });
