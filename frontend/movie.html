@@ -4,21 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Select Seats</title>
-<script>
-  (function() {
-    const saved = localStorage.getItem('movieDekhoTheme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (prefersDark ? 'dark' : 'light');
-    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-  })();
-</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
 <h1><a href="index.html" class="brand-link" id="movieTitle">Select Your Seats</a></h1>
-<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
 </header>
 
 <section class="seat-layout">

@@ -4,14 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Movie Details</title>
-<script>
-  (function() {
-    const saved = localStorage.getItem('movieDekhoTheme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (prefersDark ? 'dark' : 'light');
-    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-  })();
-</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="details-page">
@@ -23,7 +15,6 @@
 <a href="user-login.html">User Login</a>
 <a href="admin-login.html">Admin Login</a>
 </nav>
-<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
 </header>
 
 <main class="details-shell">

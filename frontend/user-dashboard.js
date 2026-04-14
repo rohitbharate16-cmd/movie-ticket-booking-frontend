@@ -19,39 +19,6 @@ const paidTotal = document.getElementById("dashboardPaidTotal");
 const movieCatalog = new Map();
 const dashboardBookings = [];
 
-// -- Theme toggle -------------------------------------------------
-const themeBtn = document.getElementById("themeToggleBtn");
-
-const applyTheme = (theme) => {
-  if (theme === "light") {
-    document.documentElement.setAttribute("data-theme", "light");
-    if (themeBtn) {
-      themeBtn.textContent = "\u263E";
-    }
-  } else {
-    document.documentElement.removeAttribute("data-theme");
-    if (themeBtn) {
-      themeBtn.textContent = "\u2600\uFE0F";
-    }
-  }
-};
-
-const getStoredTheme = () => localStorage.getItem("movieDekhoTheme")
-  || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-
-if (!window.__MOVIE_DEKHO_THEME_INIT__) {
-  applyTheme(getStoredTheme());
-
-  themeBtn?.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-    const next = current === "light" ? "dark" : "light";
-    localStorage.setItem("movieDekhoTheme", next);
-    applyTheme(next);
-  });
-
-  window.__MOVIE_DEKHO_THEME_INIT__ = true;
-}
-
 const escapeHtml = (value) => String(value ?? "")
   .replace(/&/g, "&amp;")
   .replace(/</g, "&lt;")

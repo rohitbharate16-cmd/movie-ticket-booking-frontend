@@ -114,6 +114,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const MOVIE_ORDER_INDEX = Object.fromEntries(
     MOVIE_DISPLAY_ORDER.map((movieId, index) => [movieId, index])
   );
+  const getLegacyMovieOrder = (movieId) =>
+    MOVIE_ORDER_INDEX[movieId] !== undefined ? MOVIE_ORDER_INDEX[movieId] + 1 : null;
   const DEFAULT_FOOD_MENU = [
     { id: "classic-popcorn", name: "Classic Salted Popcorn", category: "Popcorn", price: 180, badge: "Best Seller", artLabel: "POP", description: "Big tub with buttery cinema crunch." },
     { id: "cheese-popcorn", name: "Cheese Burst Popcorn", category: "Popcorn", price: 220, badge: "Hot Pick", artLabel: "CHE", description: "Loaded with creamy cheddar flavor." },
@@ -522,6 +524,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     trailerUrl: String(movie?.trailerUrl || ""),
     defaultPrice: clonePriceSet(movie?.defaultPrice),
     isCustom: Boolean(movie?.isCustom),
+    displayOrder: Number.isFinite(Number(movie?.displayOrder))
+      ? Math.max(1, Math.round(Number(movie.displayOrder)))
+      : getLegacyMovieOrder(fallbackId),
     id: fallbackId
   });
 
@@ -737,6 +742,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const mapMovieRowToEntry = (row) => normalizeMovieEntry({
     name: row.name,
+    displayOrder: row.display_order,
     image: row.image_url,
     rating: row.rating,
     votes: row.votes,
@@ -772,6 +778,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mapMovieEntryToRow = (movieId, movieData) => ({
     id: movieId,
     name: movieData.name,
+    display_order: Number.isFinite(Number(movieData.displayOrder))
+      ? Math.max(1, Math.round(Number(movieData.displayOrder)))
+      : null,
     image_url: movieData.image,
     rating: movieData.rating,
     votes: movieData.votes,
@@ -830,15 +839,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const getOrderedMovieEntries = (catalog) =>
     Object.entries(catalog).sort(([movieIdA, movieDataA], [movieIdB, movieDataB]) => {
-      const orderA = MOVIE_ORDER_INDEX[movieIdA];
-      const orderB = MOVIE_ORDER_INDEX[movieIdB];
+      const orderA = Number.isFinite(Number(movieDataA?.displayOrder))
+        ? Number(movieDataA.displayOrder)
+        : getLegacyMovieOrder(movieIdA);
+      const orderB = Number.isFinite(Number(movieDataB?.displayOrder))
+        ? Number(movieDataB.displayOrder)
+        : getLegacyMovieOrder(movieIdB);
 
       if (orderA !== undefined || orderB !== undefined) {
-        if (orderA === undefined) {
+        if (orderA === undefined || orderA === null) {
           return 1;
         }
 
-        if (orderB === undefined) {
+        if (orderB === undefined || orderB === null) {
           return -1;
         }
 
@@ -849,6 +862,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
   const orderMovieCatalog = (catalog) => Object.fromEntries(getOrderedMovieEntries(catalog));
+  const getNextMovieDisplayOrder = (catalog) => Object.values(catalog)
+    .reduce((max, movieData) => {
+      const value = Number(movieData?.displayOrder);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0) + 1;
 
   const loadSupabaseAppState = async () => {
     if (!isRemoteDataEnabled()) {
@@ -1890,7 +1908,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    priceGrid.innerHTML = Object.entries(catalog)
+    priceGrid.innerHTML = getOrderedMovieEntries(catalog)
       .map(([movieId, movieData]) => {
         const priceSet = prices[movieId] || clonePriceSet(movieData.defaultPrice);
 
@@ -1906,6 +1924,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button type="button" class="movie-delete-btn" data-delete-movie="${escapeHtml(movieId)}">Remove</button>
               </div>
               <p>${escapeHtml(movieData.genre)} | ${escapeHtml(movieData.languages)}</p>
+              <div class="price-tier-grid admin-price-tier-grid">
+                <label class="price-field" for="${escapeHtml(movieId)}DisplayOrder">Home Order
+                  <input id="${escapeHtml(movieId)}DisplayOrder" name="${escapeHtml(movieId)}_display_order" type="number" min="1" value="${Number(movieData.displayOrder) || ""}" required>
+                </label>
+              </div>
               <div class="price-tier-grid">
                 <label class="price-field" for="${escapeHtml(movieId)}RegularPrice">Regular
                   <input id="${escapeHtml(movieId)}RegularPrice" name="${escapeHtml(movieId)}_regular" type="number" min="1" value="${priceSet.regular}" required>
@@ -3073,6 +3096,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adminScheduleGrid = document.getElementById("adminScheduleGrid");
     const adminScheduleStatus = document.getElementById("adminScheduleStatus");
     const adminScheduleManageStatus = document.getElementById("adminScheduleManageStatus");
+    const resetDashboardBookingsBtn = document.getElementById("resetDashboardBookings");
+    const adminDashboardResetStatus = document.getElementById("adminDashboardResetStatus");
     const scheduleMovieSelect = document.getElementById("scheduleMovie");
     const scheduleFilterMovie = document.getElementById("scheduleFilterMovie");
     const scheduleSearchInput = document.getElementById("scheduleSearch");
@@ -3254,20 +3279,27 @@ document.addEventListener("DOMContentLoaded", async () => {
           const regularInput = adminPanel.querySelector(`[name="${movieId}_regular"]`);
           const silverInput = adminPanel.querySelector(`[name="${movieId}_silver"]`);
           const goldInput = adminPanel.querySelector(`[name="${movieId}_gold"]`);
+          const displayOrderInput = adminPanel.querySelector(`[name="${movieId}_display_order"]`);
           const regular = Number(regularInput?.value);
           const silver = Number(silverInput?.value);
           const gold = Number(goldInput?.value);
+          const displayOrder = Number(displayOrderInput?.value);
 
           if (
             !Number.isFinite(regular) || regular <= 0 ||
             !Number.isFinite(silver) || silver <= 0 ||
-            !Number.isFinite(gold) || gold <= 0
+            !Number.isFinite(gold) || gold <= 0 ||
+            !Number.isFinite(displayOrder) || displayOrder <= 0
           ) {
-            statusNode.textContent = "Enter a valid price greater than 0 for every seat type.";
+            statusNode.textContent = "Enter valid prices and a home order greater than 0 for every movie.";
             statusNode.classList.add("error");
             return;
           }
 
+          movieCatalog[movieId] = normalizeMovieEntry({
+            ...movieCatalog[movieId],
+            displayOrder
+          }, movieId);
           updatedPrices[movieId] = {
             regular: Math.round(regular),
             silver: Math.round(silver),
@@ -3280,6 +3312,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           await upsertMoviesToSupabase(
             Object.keys(updatedPrices).map((movieId) => ({
               id: movieId,
+              display_order: movieCatalog[movieId].displayOrder,
               regular_price: updatedPrices[movieId].regular,
               silver_price: updatedPrices[movieId].silver,
               gold_price: updatedPrices[movieId].gold
@@ -3291,9 +3324,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
+        movieCatalog = orderMovieCatalog(movieCatalog);
         showCatalog = showCatalog.map((show) => hydrateShowEntry(show, prices));
+        movieIds = Object.keys(movieCatalog);
+        renderAdminPriceGrid(movieCatalog, prices);
+        renderScheduleMovieOptions();
         renderAdminScheduleGrid(showCatalog);
-        statusNode.textContent = "Movie prices updated successfully.";
+        statusNode.textContent = "Movie prices and home-page order updated successfully.";
         statusNode.classList.remove("error");
       });
 
@@ -3586,6 +3623,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
+    if (resetDashboardBookingsBtn) {
+      resetDashboardBookingsBtn.addEventListener("click", async () => {
+        const shouldReset = window.confirm("Delete all saved bookings and clear every user dashboard ticket?");
+
+        if (!shouldReset) {
+          return;
+        }
+
+        try {
+          await apiRequest("/bookings", {
+            method: "DELETE"
+          });
+          adminDashboardResetStatus.textContent = "All dashboard tickets were cleared successfully.";
+          adminDashboardResetStatus.classList.remove("error");
+        } catch (error) {
+          adminDashboardResetStatus.textContent = error.message;
+          adminDashboardResetStatus.classList.add("error");
+        }
+      });
+    }
+
     if (resetSchedulesBtn) {
       resetSchedulesBtn.addEventListener("click", async () => {
         const defaultShows = buildShowCatalog(movieCatalog, prices);
@@ -3713,11 +3771,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             ],
             trailerUrl,
             defaultPrice: { regular: Math.round(regular), silver: Math.round(silver), gold: Math.round(gold) },
-            isCustom: true
+            isCustom: true,
+            displayOrder: getNextMovieDisplayOrder(movieCatalog)
           }, movieId);
 
           await upsertMoviesToSupabase([mapMovieEntryToRow(movieId, nextMovieEntry)]);
           movieCatalog[movieId] = nextMovieEntry;
+          movieCatalog = orderMovieCatalog(movieCatalog);
 
           prices[movieId] = { regular: Math.round(regular), silver: Math.round(silver), gold: Math.round(gold) };
 

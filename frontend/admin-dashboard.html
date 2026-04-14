@@ -34,7 +34,7 @@
 <main class="admin-shell">
 <section class="admin-view-panel active" data-admin-view-panel="movies">
 <h2>Manage Movies</h2>
-<p>Add a new movie with poster, trailer, summary, genre, and prices. Every movie you add here will appear in the booking flow like the existing listings.</p>
+<p>Add a new movie with poster, trailer, summary, genre, prices, and home-page order. Every movie you add here will appear in the booking flow like the existing listings.</p>
 
 <section class="admin-section">
 <div class="admin-section-head">
@@ -110,7 +110,7 @@
 
 <div class="admin-section-head">
 <h3>Manage Movie Prices</h3>
-<p>Update ticket prices for both default and admin-added movies.</p>
+<p>Update ticket prices for both default and admin-added movies, and set the order used on the home page list.</p>
 </div>
 
 <form id="adminPriceForm" class="price-form">
@@ -123,6 +123,17 @@
 
 <p id="adminStatus" class="login-status"></p>
 </form>
+
+<section class="admin-section">
+<div class="admin-section-head">
+<h3>Reset User Dashboard Tickets</h3>
+<p>Clear all saved bookings so old movie tickets disappear from every user dashboard.</p>
+</div>
+<div class="price-actions">
+<button type="button" class="secondary-action" id="resetDashboardBookings">Reset All Dashboard Tickets</button>
+</div>
+<p id="adminDashboardResetStatus" class="login-status"></p>
+</section>
 </section>
 
 <section class="admin-view-panel" data-admin-view-panel="food" hidden>

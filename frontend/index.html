@@ -4,14 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Movie Dekho!</title>
-<script>
-  (function() {
-    const saved = localStorage.getItem('movieDekhoTheme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (prefersDark ? 'dark' : 'light');
-    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-  })();
-</script>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
 </head>
@@ -26,7 +18,6 @@
 <a href="user-login.html">User Login</a>
 <a href="admin-login.html">Admin Login</a>
 </nav>
-<button type="button" id="themeToggleBtn" aria-label="Toggle theme">&#9782;</button>
 </header>
 
 <section class="auth-strip">
@@ -119,7 +110,7 @@
   class="poster-media-link"
   data-trailer-name="Spider-Man trailer"
   aria-label="Play Spider-Man trailer">
-<img src="https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/1.jpeg" alt="Spider-Man poster">
+<img src="https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/2.jpeg" alt="Spider-Man poster">
 </a>
 <a
   href="https://www.youtube.com/watch?v=JfVOs4VSpmA"

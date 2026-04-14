@@ -1230,8 +1230,11 @@ body.confirm-page::before {
 }
 
 .page-back-wrap {
-  width: min(1100px, calc(100% - 2rem));
-  margin: 1rem auto 0;
+  width: 100%;
+  margin: 0;
+  padding: 1rem 1rem 0;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .page-back-button {
@@ -1263,21 +1266,6 @@ body.confirm-page::before {
   box-shadow: 0 12px 24px rgba(45, 224, 195, 0.16);
 }
 
-#themeToggleBtn {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-size: 18px;
-  color: var(--text-primary);
-  transition: background 0.2s;
-}
-
-#themeToggleBtn:hover {
-  background: var(--bg-card-alt);
-}
-
 header {
   display: flex;
   align-items: center;
@@ -1289,16 +1277,10 @@ header h1 {
 }
 
 header nav {
-  order: 3;
   display: flex;
   align-items: center;
   gap: 1.5rem;
   flex-wrap: nowrap;
-}
-
-header #themeToggleBtn {
-  order: 2;
-  flex: 0 0 auto;
 }
 
 .dashboard-shell {
@@ -2317,7 +2299,7 @@ body.trailer-modal-open {
 .trailer-modal-close {
   position: absolute;
   top: 12px;
-  right: 12px;
+  left: 12px;
   z-index: 10;
   width: 44px;
   height: 44px;
@@ -2341,7 +2323,7 @@ body.trailer-modal-open {
 
 .trailer-modal-header {
   margin-bottom: 14px;
-  padding-right: 52px;
+  padding-left: 52px;
 }
 
 .trailer-modal-kicker {
@@ -2399,7 +2381,7 @@ body.trailer-modal-open {
 
   .trailer-modal-close {
     top: 10px;
-    right: 10px;
+    left: 10px;
     width: 40px;
     height: 40px;
   }
@@ -3743,12 +3725,7 @@ html[data-theme="light"] .details-meta {
     flex: 1 1 100%;
   }
 
-  header #themeToggleBtn {
-    order: 2;
-  }
-
   header nav {
-    order: 3;
     width: auto;
     flex-wrap: wrap;
     justify-content: flex-end;
