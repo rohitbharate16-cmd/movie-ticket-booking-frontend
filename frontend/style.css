@@ -1117,7 +1117,7 @@ body.confirm-page {
   min-height: 100vh;
   background:
     linear-gradient(160deg, rgba(6, 16, 32, 0.94), rgba(7, 11, 18, 0.98)),
-    url("https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/4.jpg") no-repeat center center/cover;
+    url("https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Dhurandhar%20The%20Revenge.png") no-repeat center center/cover;
   position: relative;
   font-family: Segoe UI, sans-serif;
 }
@@ -1454,7 +1454,7 @@ body.login-page {
   min-height: 100vh;
   background:
     linear-gradient(rgba(6, 0, 0, 0.72), rgba(27, 2, 2, 0.9)),
-    url("https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/1.jpeg") no-repeat center center/cover;
+    url("https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/DUNE%202.png") no-repeat center center/cover;
   background-attachment: fixed;
 }
 

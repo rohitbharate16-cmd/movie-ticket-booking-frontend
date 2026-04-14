@@ -78,19 +78,42 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   let currentSession = null;
   const SUPABASE_MOVIE_POSTERS = {
-    dragon: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/4.jpg",
-    pushpa: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/5.jpg",
-    master: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/3.jpg",
-    dhurandhar: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/6.jpg",
-    coolie: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/8.jpg",
-    marco: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/7.jpg",
-    heartbeats: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Heartbeats.JPG",
-    threeidiots: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/3%20idiots.JPG",
-    saiyaara: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Saiyaara.JPG",
-    dhamaal: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Dhamaal.JPG",
-    tamasha: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Tamasha.JPG",
-    bhoolbhulaiyaa2: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Bhool%20Bhulaiyaa%202.JPG"
+    mercy: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/MERCY.png",
+    themummyreboot: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/The%20Mummy%20(Reboot).png",
+    insideout2: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Inside%20Out%202.png",
+    dhurandhartherevenge: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Dhurandhar%20The%20Revenge.png",
+    vadh2: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/VADH%202.png",
+    subedaar: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Subedaar.png",
+    deadpoolwolverine: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Deadpool%20&%20Wolverine.png",
+    jokerfolieadeux: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Joker.png",
+    duneparttwo: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/DUNE%202.png",
+    mardaani3: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Mardaani%203.png",
+    ekdin: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/EK%20DIN.png",
+    assi: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Assi.png",
+    kungfupanda4: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Kung%20Fu%20Panda%204.png",
+    godzillaxkongthenewempire: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/Godzilla%20x%20Kong%20The%20New%20Empire.png",
+    rahuketu: "https://nhtsybfppoyrpopjmjbc.supabase.co/storage/v1/object/public/movie-posters/images/RAHU%20KETU.png"
   };
+  const MOVIE_DISPLAY_ORDER = [
+    "mercy",
+    "themummyreboot",
+    "insideout2",
+    "dhurandhartherevenge",
+    "vadh2",
+    "subedaar",
+    "deadpoolwolverine",
+    "jokerfolieadeux",
+    "duneparttwo",
+    "mardaani3",
+    "ekdin",
+    "assi",
+    "kungfupanda4",
+    "godzillaxkongthenewempire",
+    "rahuketu"
+  ];
+  const MOVIE_ORDER_INDEX = Object.fromEntries(
+    MOVIE_DISPLAY_ORDER.map((movieId, index) => [movieId, index])
+  );
   const DEFAULT_FOOD_MENU = [
     { id: "classic-popcorn", name: "Classic Salted Popcorn", category: "Popcorn", price: 180, badge: "Best Seller", artLabel: "POP", description: "Big tub with buttery cinema crunch." },
     { id: "cheese-popcorn", name: "Cheese Burst Popcorn", category: "Popcorn", price: 220, badge: "Hot Pick", artLabel: "CHE", description: "Loaded with creamy cheddar flavor." },
@@ -165,281 +188,287 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
   const priceListingByDay = {
-    Monday: { "2D": 10, "3D": 12, "4DX": 15 },
-    Tuesday: { "2D": 10, "3D": 12, "4DX": 14 },
-    Wednesday: { "2D": 8, "3D": 10, "4DX": 12 },
-    Thursday: { "2D": 10, "3D": 12, "4DX": 15 },
-    Friday: { "2D": 12, "3D": 15, "4DX": 22 },
-    Saturday: { "2D": 12, "3D": 15, "4DX": 20 },
-    Sunday: { "2D": 10, "3D": 13, "4DX": 17 }
+    Monday: { "2D": 10, "3D": 12, "4DX": 15, "IMAX": 18 },
+    Tuesday: { "2D": 10, "3D": 12, "4DX": 14, "IMAX": 18 },
+    Wednesday: { "2D": 8, "3D": 10, "4DX": 12, "IMAX": 16 },
+    Thursday: { "2D": 10, "3D": 12, "4DX": 15, "IMAX": 18 },
+    Friday: { "2D": 12, "3D": 15, "4DX": 22, "IMAX": 24 },
+    Saturday: { "2D": 12, "3D": 15, "4DX": 20, "IMAX": 22 },
+    Sunday: { "2D": 10, "3D": 13, "4DX": 17, "IMAX": 20 }
   };
   const movieTypeMap = {
-    dragon: ["2D", "4DX"],
-    pushpa: ["2D", "3D", "4DX"],
-    master: ["2D", "3D"],
-    dhurandhar: ["2D", "4DX"],
-    coolie: ["2D", "3D"],
-    marco: ["2D", "3D"],
-    heartbeats: ["2D"],
-    threeidiots: ["2D"],
-    saiyaara: ["2D"],
-    dhamaal: ["2D"],
-    tamasha: ["2D"],
-    bhoolbhulaiyaa2: ["2D", "3D"]
+    mercy: ["2D"],
+    themummyreboot: ["2D", "IMAX"],
+    insideout2: ["2D", "3D"],
+    dhurandhartherevenge: ["2D", "IMAX"],
+    vadh2: ["2D"],
+    subedaar: ["2D"],
+    deadpoolwolverine: ["2D", "IMAX"],
+    jokerfolieadeux: ["2D", "IMAX"],
+    duneparttwo: ["2D", "IMAX"],
+    mardaani3: ["2D"],
+    ekdin: ["2D"],
+    assi: ["2D"],
+    kungfupanda4: ["2D", "3D"],
+    godzillaxkongthenewempire: ["2D", "IMAX", "3D"],
+    rahuketu: ["2D"]
   };
 
   const defaultMovieCatalog = {
-    dragon: {
-      name: "The Dragon",
-      image: SUPABASE_MOVIE_POSTERS.dragon,
-      rating: "8.8/10",
-      votes: "214K+ Votes",
-      duration: "2h 34m",
-      genre: "Action, Drama",
-      certificate: "UA",
-      releaseDate: "14 Feb, 2026",
-      formats: "2D (commercial mass entertainer)",
-      languages: "Tamil",
-      summary: "A high-energy action film centered around a powerful and fearless protagonist known as Dragon. The story showcases intense fight sequences, revenge-driven storytelling, and a larger-than-life hero persona. There is a strong emotional undertone tied to betrayal or injustice. Dramatic slow-motion visuals and heavy background music build the hype. It feels like a journey of rise, domination, and redemption.",
-      criticRating: "4.2/5",
-      highlights: [
-        "Big-screen fantasy action with heroic set pieces.",
-        "Strong emotional arc around loyalty and revenge.",
-        "Designed as a crowd-pleasing theatrical experience."
-      ],
-      trailerUrl: "https://youtu.be/IaSSm_BtQzk?si=SvV7jf9KVpHCGsFY",
-      defaultPrice: { regular: 220, silver: 300, gold: 370 }
-    },
-    pushpa: {
-      name: "Pushpa",
-      image: SUPABASE_MOVIE_POSTERS.pushpa,
-      rating: "9.1/10",
-      votes: "506K+ Votes",
-      duration: "3h 01m",
-      genre: "Action, Crime, Drama",
-      certificate: "A",
-      releaseDate: "12 Jan, 2026",
-      formats: "2D (cinematic theatrical release)",
-      languages: "Telugu, Hindi, Tamil, Malayalam, Kannada",
-      summary: "The story follows Pushpa's rise in the red sandalwood smuggling world. It highlights power struggles, dominance, and survival in a brutal underworld. The protagonist's attitude and swag stand out strongly. The visuals are gritty and grounded, reflecting rural crime dynamics. It hints at conflict with authorities and rival gangs, mixing action with raw emotion.",
-      criticRating: "4.4/5",
-      highlights: [
-        "Mass-action moments built for a loud theater crowd.",
-        "Stylized clashes between ambition, pride, and survival.",
-        "High-voltage lead performance and intense background score."
-      ],
-      trailerUrl: "https://youtu.be/pKctjlxbFDQ?si=ZkHIbk51VNvG1Dog",
-      defaultPrice: { regular: 250, silver: 330, gold: 400 }
-    },
-    master: {
-      name: "Master",
-      image: SUPABASE_MOVIE_POSTERS.master,
-      rating: "8.7/10",
-      votes: "331K+ Votes",
-      duration: "2h 58m",
-      genre: "Action, Drama, Thriller",
-      certificate: "UA",
-      releaseDate: "29 Jan, 2026",
+    mercy: {
+      name: "Mercy",
+      image: SUPABASE_MOVIE_POSTERS.mercy,
+      rating: "7.0/10",
+      genre: "Thriller",
       formats: "2D",
-      languages: "Tamil, Telugu, Hindi",
-      summary: "The story revolves around a professor with a troubled past who is sent to a juvenile school. There he faces a ruthless gangster controlling young inmates. The trailer blends intense action with emotional depth and social themes. It shows a clash between good and evil ideologies. Strong performances and powerful dialogues drive the narrative with both mass appeal and message.",
-      criticRating: "4.1/5",
+      languages: "English",
+      summary: "A tense thriller involving survival and moral dilemmas. The protagonist faces life-threatening challenges. Suspense and emotional depth keep viewers engaged.",
+      criticRating: "3.5/5",
       highlights: [
-        "Tense hero-villain face-offs with strong payoff.",
-        "Balances swagger, drama, and social stakes.",
-        "Packed with memorable songs and punch moments."
+        "Survival stakes keep the tension sharp.",
+        "Moral choices drive the emotional conflict.",
+        "Built around a tightly wound thriller setup."
       ],
-      trailerUrl: "https://youtu.be/UTiXQcrLlv4?si=TMx2vxaxEB8pK7eG",
-      defaultPrice: { regular: 200, silver: 280, gold: 350 }
-    },
-    dhurandhar: {
-      name: "Dhurandhar",
-      image: SUPABASE_MOVIE_POSTERS.dhurandhar,
-      rating: "9.4/10",
-      votes: "278K+ Votes",
-      duration: "3h 49m",
-      genre: "Action, Drama",
-      certificate: "A",
-      releaseDate: "19 Mar, 2026",
-      formats: "2D",
-      languages: "Hindi, Tamil, Telugu, Malayalam, Kannada",
-      summary: "A high-voltage action entertainer featuring a fearless hero fighting against injustice. The trailer includes intense combat scenes, heroic dialogues, and dramatic confrontations. There is a focus on patriotism or righteousness. The narrative feels centered around one man standing against a corrupt system. It promises a mix of action, emotion, and strong mass-appeal moments.",
-      criticRating: "4.6/5",
-      highlights: [
-        "Dark revenge drama with a large-scale action tone.",
-        "Sharp tension, heavy emotion, and stylish visuals.",
-        "Built around a powerful central performance."
-      ],
-      trailerUrl: "https://youtu.be/NHk7scrb_9I?si=oXown3lRdf0YLhJn",
-      defaultPrice: { regular: 230, silver: 310, gold: 380 }
-    },
-    coolie: {
-      name: "Coolie",
-      image: SUPABASE_MOVIE_POSTERS.coolie,
-      rating: "8.9/10",
-      votes: "192K+ Votes",
-      duration: "2h 42m",
-      genre: "Action, Drama",
-      certificate: "UA",
-      releaseDate: "01 May, 2026",
-      formats: "2D",
-      languages: "Tamil, Telugu, Hindi, Malayalam",
-      summary: "A mass entertainer centered around a rugged working-class hero. The trailer mixes action, drama, and emotional storytelling. It highlights themes of struggle, dignity, and rebellion. The protagonist appears to fight against powerful enemies while representing common people. Stylish visuals and punch dialogues promise a high-energy theatrical experience.",
-      criticRating: "4.3/5",
-      highlights: [
-        "Star-driven action with a big-screen commercial feel.",
-        "Emotion-led story with crowd-friendly elevation scenes.",
-        "Mixes social conflict with stylish mass entertainment."
-      ],
-      trailerUrl: "https://youtu.be/qeVfT2iLiu0?si=APfnWyQiMooG_z0j",
-      defaultPrice: { regular: 260, silver: 340, gold: 410 }
-    },
-    marco: {
-      name: "Marco",
-      image: SUPABASE_MOVIE_POSTERS.marco,
-      rating: "8.5/10",
-      votes: "167K+ Votes",
-      duration: "2h 29m",
-      genre: "Action, Thriller, Crime",
-      certificate: "A",
-      releaseDate: "17 Apr, 2026",
-      formats: "2D",
-      languages: "Malayalam, Tamil, Hindi",
-      summary: "This trailer presents a darker and more stylish action film with a mysterious lead character. It hints at crime, revenge, and psychological depth. The visuals feel sleek with a modern cinematic tone. There is a strong focus on character intensity and violent confrontations. The story seems layered with suspense and emotional conflict, giving it an international vibe.",
-      criticRating: "4.0/5",
-      highlights: [
-        "Gritty action tone with fast pacing.",
-        "Underground crime setting with personal stakes.",
-        "Sharp atmosphere and a darker edge than the others."
-      ],
-      trailerUrl: "https://youtu.be/AdwGOloQcAs?si=o5S1v_HUh3tH8zQP",
-      defaultPrice: { regular: 210, silver: 290, gold: 360 }
-    },
-    heartbeats: {
-      name: "Heartbeats",
-      image: SUPABASE_MOVIE_POSTERS.heartbeats,
-      rating: "8.6/10",
-      votes: "148K+ Votes",
-      duration: "2h 21m",
-      genre: "Romance, Drama",
-      certificate: "UA",
-      releaseDate: "09 May, 2026",
-      formats: "2D",
-      languages: "Hindi, Tamil",
-      summary: "A youth-centric film revolving around love, relationships, and emotional struggles. The trailer shows modern romance with conflicts and personal growth. It captures college or early-life experiences and emotional ups and downs. There is a mix of drama, heartbreak, and light moments. The storytelling appears relatable and character-driven.",
-      criticRating: "4.2/5",
-      highlights: [
-        "Modern relationship drama with a youthful tone.",
-        "Balances heartbreak, growth, and lighter moments.",
-        "Character-driven storytelling built around relatable emotions."
-      ],
-      trailerUrl: "https://youtu.be/YknK1G-g-qc?si=EpxuiG5q8x3W9UAn",
+      trailerUrl: "https://www.youtube.com/watch?v=6ch1ngUM3w8",
       defaultPrice: { regular: 190, silver: 270, gold: 340 }
     },
-    threeidiots: {
-      name: "3 Idiots",
-      image: SUPABASE_MOVIE_POSTERS.threeidiots,
-      rating: "9.3/10",
-      votes: "512K+ Votes",
-      duration: "2h 50m",
-      genre: "Comedy, Drama",
-      certificate: "U",
-      releaseDate: "25 Dec, 2009",
-      formats: "2D",
-      languages: "Hindi",
-      summary: "A story about three engineering students navigating college life, pressure, and friendship. The trailer highlights the flaws in the education system and emphasizes learning over rote memorization. Rancho's character challenges traditional thinking and inspires others. It mixes humor, emotional moments, and life lessons. Themes of passion, success, and self-discovery are strong. The film balances comedy with meaningful social commentary.",
-      criticRating: "4.8/5",
+    themummyreboot: {
+      name: "The Mummy (Reboot Trailer)",
+      image: SUPABASE_MOVIE_POSTERS.themummyreboot,
+      rating: "7.6/10",
+      genre: "Horror, Adventure",
+      formats: "2D / IMAX",
+      languages: "English, Hindi (dubbed)",
+      summary: "A reboot of the iconic franchise with a darker tone. Ancient curses return in a modern setting. The film blends action, horror, and adventure.",
+      criticRating: "3.8/5",
       highlights: [
-        "Sharp social commentary wrapped in crowd-pleasing humor.",
-        "Celebrates friendship, curiosity, and self-discovery.",
-        "Blends comedy, emotion, and big life lessons smoothly."
+        "Ancient horror meets modern blockbuster scale.",
+        "Adventure set pieces balance the darker tone.",
+        "A franchise reboot with action-first energy."
       ],
-      trailerUrl: "https://youtu.be/xvszmNXdM4w?si=cB19w-unxcKygcR0",
-      defaultPrice: { regular: 200, silver: 280, gold: 350 }
+      trailerUrl: "https://www.youtube.com/watch?v=IjHgzkQM2Sg",
+      defaultPrice: { regular: 230, silver: 310, gold: 380 }
     },
-    saiyaara: {
-      name: "Saiyaara",
-      image: SUPABASE_MOVIE_POSTERS.saiyaara,
+    insideout2: {
+      name: "Inside Out 2",
+      image: SUPABASE_MOVIE_POSTERS.insideout2,
       rating: "8.4/10",
-      votes: "184K+ Votes",
-      duration: "5m 12s",
-      genre: "Romantic, Musical",
-      certificate: "UA",
-      releaseDate: "15 Jul, 2025",
-      formats: "2D (music video)",
-      languages: "Hindi",
-      summary: "A romantic music video showcasing deep love and emotional bonding between two people. The visuals focus on separation, longing, and intense feelings. The song carries a soulful melody with expressive lyrics. It highlights heartbreak and attachment beautifully. The overall tone is soft, emotional, and poetic.",
-      criticRating: "4.1/5",
-      highlights: [
-        "Soulful romantic mood built around longing and memory.",
-        "Strong musical and lyrical appeal with soft visuals.",
-        "Leans into heartbreak, intimacy, and emotional attachment."
-      ],
-      trailerUrl: "https://youtu.be/9r-tT5IN0vg?si=oqvMVw1qKvxl5P0n",
-      defaultPrice: { regular: 150, silver: 230, gold: 300 }
-    },
-    dhamaal: {
-      name: "Dhamaal",
-      image: SUPABASE_MOVIE_POSTERS.dhamaal,
-      rating: "8.5/10",
-      votes: "226K+ Votes",
-      duration: "2h 16m",
-      genre: "Comedy, Adventure",
-      certificate: "UA",
-      releaseDate: "07 Sep, 2007",
-      formats: "2D",
-      languages: "Hindi",
-      summary: "A comedy adventure about four friends chasing hidden treasure. The trailer is filled with chaotic humor, misunderstandings, and crazy situations. It focuses on slapstick comedy and fast-paced storytelling. Each character adds to the madness with unique personalities. The film promises nonstop laughter and fun.",
+      genre: "Animation, Family",
+      formats: "2D / 3D",
+      languages: "English, Hindi",
+      summary: "Riley enters her teenage years, bringing new emotions into her life. The story explores mental growth and emotional challenges. A heartwarming and relatable sequel.",
       criticRating: "4.2/5",
       highlights: [
-        "Treasure-hunt setup creates nonstop comic chaos.",
-        "Slapstick humor and misunderstandings keep the pace high.",
-        "Ensemble cast energy makes it an easy crowd-pleaser."
+        "New emotions reshape Riley's teenage journey.",
+        "Family-friendly storytelling with emotional depth.",
+        "Balances humor, heart, and coming-of-age themes."
       ],
-      trailerUrl: "https://youtu.be/D7felvV3JRc?si=GENDqxv1f5B9dGJK",
-      defaultPrice: { regular: 180, silver: 260, gold: 330 }
+      trailerUrl: "https://www.youtube.com/watch?v=LEjhY15eCx0",
+      defaultPrice: { regular: 220, silver: 300, gold: 370 }
     },
-    tamasha: {
-      name: "Tamasha",
-      image: SUPABASE_MOVIE_POSTERS.tamasha,
-      rating: "8.8/10",
-      votes: "241K+ Votes",
-      duration: "2h 19m",
-      genre: "Romance, Drama",
-      certificate: "UA",
-      releaseDate: "27 Nov, 2015",
-      formats: "2D",
+    dhurandhartherevenge: {
+      name: "Dhurandhar: The Revenge",
+      image: SUPABASE_MOVIE_POSTERS.dhurandhartherevenge,
+      rating: "8.2/10",
+      genre: "Action, Thriller",
+      formats: "2D / IMAX",
       languages: "Hindi",
-      summary: "A story about self-identity and breaking free from societal expectations. The trailer shows a man living a double life, one real and one forced by routine. It explores love, passion, and inner conflict. The narrative is emotional and philosophical. There is a strong focus on storytelling and personal transformation.",
-      criticRating: "4.4/5",
+      summary: "A high-octane action thriller following a covert operative entangled in a global conspiracy. As secrets unfold, he must confront betrayal within his own agency. Packed with intense action sequences and emotional depth, it sets a new benchmark for Indian cinema.",
+      criticRating: "4.1/5",
       highlights: [
-        "Emotionally layered story about identity and freedom.",
-        "Blends romance with philosophical self-discovery.",
-        "Driven by inner conflict rather than formula."
+        "A covert mission unravels into global conspiracy.",
+        "Betrayal inside the agency raises the stakes.",
+        "Large-scale action is matched with emotional payoff."
       ],
-      trailerUrl: "https://youtu.be/o-e5eWVCzx8?si=bvzgR3047lqTuBpi",
-      defaultPrice: { regular: 210, silver: 290, gold: 360 }
+      trailerUrl: "https://www.youtube.com/watch?v=NHk7scrb_9I",
+      defaultPrice: { regular: 240, silver: 320, gold: 390 }
     },
-    bhoolbhulaiyaa2: {
-      name: "Bhool Bhulaiyaa 2",
-      image: SUPABASE_MOVIE_POSTERS.bhoolbhulaiyaa2,
-      rating: "8.3/10",
-      votes: "287K+ Votes",
-      duration: "2h 23m",
-      genre: "Horror, Comedy",
-      certificate: "UA",
-      releaseDate: "20 May, 2022",
+    vadh2: {
+      name: "Vadh 2",
+      image: SUPABASE_MOVIE_POSTERS.vadh2,
+      rating: "7.8/10",
+      genre: "Crime, Drama",
       formats: "2D",
       languages: "Hindi",
-      summary: "A horror-comedy centered around a haunted mansion and a mysterious spirit. The trailer blends spooky elements with humor and entertainment. It features a quirky protagonist dealing with supernatural events. There are twists, suspense, and comic relief throughout. The film maintains a fun yet eerie vibe.",
+      summary: "A gripping sequel that continues a morally complex crime story. It explores justice, guilt, and survival in a harsh world. Strong performances make it emotionally engaging.",
+      criticRating: "3.9/5",
+      highlights: [
+        "Justice and guilt shape the central conflict.",
+        "Crime drama tension stays grounded and intense.",
+        "Performance-driven storytelling carries the sequel."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=AnOCvitPlsc",
+      defaultPrice: { regular: 200, silver: 280, gold: 350 }
+    },
+    subedaar: {
+      name: "Subedaar",
+      image: SUPABASE_MOVIE_POSTERS.subedaar,
+      rating: "7.3/10",
+      genre: "Drama",
+      formats: "2D",
+      languages: "Hindi, Marathi",
+      summary: "A story of honor, sacrifice, and duty centered on a soldier's life. Emotional storytelling highlights personal and national conflicts.",
+      criticRating: "3.7/5",
+      highlights: [
+        "Duty and sacrifice sit at the story's core.",
+        "Personal conflict is tied to national service.",
+        "An emotional military drama with a grounded tone."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=wY1V7rEAQ3o",
+      defaultPrice: { regular: 195, silver: 275, gold: 345 }
+    },
+    deadpoolwolverine: {
+      name: "Deadpool & Wolverine",
+      image: SUPABASE_MOVIE_POSTERS.deadpoolwolverine,
+      rating: "8.6/10",
+      genre: "Action, Comedy",
+      formats: "2D / IMAX",
+      languages: "English, Hindi",
+      summary: "Deadpool teams up with Wolverine in a chaotic multiverse adventure. The film is packed with humor, action, and surprises. A fan-favorite Marvel entry.",
+      criticRating: "4.3/5",
+      highlights: [
+        "Multiverse chaos fuels the action-comedy pairing.",
+        "Deadpool and Wolverine deliver fan-service fireworks.",
+        "Fast-paced humor rides alongside blockbuster action."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=73_1biulkYk",
+      defaultPrice: { regular: 250, silver: 330, gold: 400 }
+    },
+    jokerfolieadeux: {
+      name: "Joker: Folie a Deux",
+      image: SUPABASE_MOVIE_POSTERS.jokerfolieadeux,
+      rating: "8.1/10",
+      genre: "Drama, Musical",
+      formats: "2D / IMAX",
+      languages: "English, Hindi",
+      summary: "A psychological continuation of Joker's story with a musical twist. It explores madness, love, and identity. A unique cinematic experience.",
+      criticRating: "4.1/5",
+      highlights: [
+        "Madness and identity remain central to the sequel.",
+        "The musical layer gives the story a new texture.",
+        "A darker character study with a bold formal shift."
+      ],
+      trailerUrl: "https://youtu.be/zAGVQLHvwOY?si=hSx2NzMB9tawNh9A",
+      defaultPrice: { regular: 235, silver: 315, gold: 385 }
+    },
+    duneparttwo: {
+      name: "Dune: Part Two",
+      image: SUPABASE_MOVIE_POSTERS.duneparttwo,
+      rating: "8.9/10",
+      genre: "Sci-Fi, Adventure",
+      formats: "2D / IMAX",
+      languages: "English, Hindi",
+      summary: "Paul Atreides rises to power while seeking revenge. The film expands its epic universe with stunning visuals. A masterpiece of modern sci-fi cinema.",
+      criticRating: "4.5/5",
+      highlights: [
+        "Paul's rise is framed as epic prophecy and revenge.",
+        "Scale and spectacle define the world-building.",
+        "Modern sci-fi ambition meets blockbuster precision."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=Way9Dexny3w",
+      defaultPrice: { regular: 255, silver: 335, gold: 405 }
+    },
+    mardaani3: {
+      name: "Mardaani 3",
+      image: SUPABASE_MOVIE_POSTERS.mardaani3,
+      rating: "8.0/10",
+      genre: "Action, Crime",
+      formats: "2D",
+      languages: "Hindi",
+      summary: "A powerful cop drama where a fearless officer takes on a new criminal network. The film delivers intense action and social themes. Strong performances and gripping storytelling drive the narrative.",
       criticRating: "4.0/5",
       highlights: [
-        "Balances spooky suspense with mainstream comedy.",
-        "Haunted-house setup creates twists and crowd-friendly moments.",
-        "Keeps the tone eerie without losing its fun side."
+        "A fearless officer anchors the high-stakes conflict.",
+        "Crime action is blended with social commentary.",
+        "Strong performances keep the drama grounded."
       ],
-      trailerUrl: "https://youtu.be/P2KRKxAb2ek?si=3iqvhUrCPsAfwin4",
-      defaultPrice: { regular: 220, silver: 300, gold: 375 }
+      trailerUrl: "https://www.youtube.com/watch?v=V4TJKSEftkU",
+      defaultPrice: { regular: 220, silver: 300, gold: 370 }
+    },
+    ekdin: {
+      name: "Ek Din",
+      image: SUPABASE_MOVIE_POSTERS.ekdin,
+      rating: "7.2/10",
+      genre: "Romance, Drama",
+      formats: "2D",
+      languages: "Hindi",
+      summary: "A heartfelt story of love and relationships unfolding over time. Emotional moments and relatable characters make it engaging. The film explores destiny and human connection.",
+      criticRating: "3.6/5",
+      highlights: [
+        "Love and destiny drive the emotional journey.",
+        "Relatable characters keep the drama intimate.",
+        "A romance shaped by time and connection."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=RCmyr_d3Hi0",
+      defaultPrice: { regular: 190, silver: 270, gold: 340 }
+    },
+    assi: {
+      name: "Assi",
+      image: SUPABASE_MOVIE_POSTERS.assi,
+      rating: "7.4/10",
+      genre: "Drama",
+      formats: "2D",
+      languages: "Hindi",
+      summary: "Set in Varanasi, the film explores culture, politics, and society. It reflects changing times through powerful storytelling. A critically appreciated drama with depth.",
+      criticRating: "3.7/5",
+      highlights: [
+        "Varanasi becomes the center of social reflection.",
+        "Culture and politics shape the film's dramatic core.",
+        "A thoughtful drama about change and identity."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=_fTMb1olDQY",
+      defaultPrice: { regular: 195, silver: 275, gold: 345 }
+    },
+    kungfupanda4: {
+      name: "Kung Fu Panda 4",
+      image: SUPABASE_MOVIE_POSTERS.kungfupanda4,
+      rating: "7.9/10",
+      genre: "Animation, Action",
+      formats: "2D / 3D",
+      languages: "English, Hindi",
+      summary: "Po returns for another adventure as he trains a new warrior. The film blends humor, action, and emotional storytelling. A fun family entertainer.",
+      criticRating: "4.0/5",
+      highlights: [
+        "Po's new journey mixes training with fresh adventure.",
+        "Family-friendly humor powers the action beats.",
+        "Emotion and comedy stay balanced throughout."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=_inKs4eeHiI",
+      defaultPrice: { regular: 220, silver: 300, gold: 370 }
+    },
+    godzillaxkongthenewempire: {
+      name: "Godzilla x Kong: The New Empire",
+      image: SUPABASE_MOVIE_POSTERS.godzillaxkongthenewempire,
+      rating: "8.0/10",
+      genre: "Action, Sci-Fi",
+      formats: "2D / IMAX / 3D",
+      languages: "English, Hindi",
+      summary: "Godzilla and Kong unite against a massive new threat. The film delivers large-scale action and visual spectacle. A must-watch for monster movie fans.",
+      criticRating: "4.0/5",
+      highlights: [
+        "Titan team-up spectacle drives the blockbuster scale.",
+        "Large-scale action is the main theatrical hook.",
+        "Designed for monster-movie fans and big screens."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=qqrpMRDuPfc",
+      defaultPrice: { regular: 250, silver: 330, gold: 400 }
+    },
+    rahuketu: {
+      name: "Rahu Ketu",
+      image: SUPABASE_MOVIE_POSTERS.rahuketu,
+      rating: "7.1/10",
+      genre: "Comedy, Drama",
+      formats: "2D",
+      languages: "Hindi",
+      summary: "A quirky story involving astrology, fate, and humorous situations. The characters navigate life's unpredictability with wit. A light-hearted entertainer.",
+      criticRating: "3.6/5",
+      highlights: [
+        "Astrology and fate add playful conflict to the story.",
+        "Comedy keeps the tone lively and accessible.",
+        "A light-hearted entertainer built on quirky situations."
+      ],
+      trailerUrl: "https://www.youtube.com/watch?v=JeQZW8E5TB8",
+      defaultPrice: { regular: 185, silver: 265, gold: 335 }
     }
   };
 
@@ -476,13 +505,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const normalizeMovieEntry = (movie, fallbackId) => ({
     name: String(movie?.name || "Untitled Movie"),
-    image: String(movie?.image || defaultMovieCatalog.dragon.image),
+    image: String(movie?.image || defaultMovieCatalog[MOVIE_DISPLAY_ORDER[0]].image),
     rating: String(movie?.rating || "New"),
     votes: String(movie?.votes || "Fresh Listing"),
-    duration: String(movie?.duration || "2h 00m"),
+    duration: String(movie?.duration || "TBA"),
     genre: String(movie?.genre || "Drama"),
-    certificate: String(movie?.certificate || "UA"),
-    releaseDate: String(movie?.releaseDate || "Coming Soon"),
+    certificate: String(movie?.certificate || "TBA"),
+    releaseDate: String(movie?.releaseDate || "Now Showing"),
     formats: String(movie?.formats || "2D"),
     languages: String(movie?.languages || "Hindi"),
     summary: String(movie?.summary || "Movie details will be updated soon."),
@@ -799,13 +828,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     return [...shows, ...generatedShows];
   };
 
+  const getOrderedMovieEntries = (catalog) =>
+    Object.entries(catalog).sort(([movieIdA, movieDataA], [movieIdB, movieDataB]) => {
+      const orderA = MOVIE_ORDER_INDEX[movieIdA];
+      const orderB = MOVIE_ORDER_INDEX[movieIdB];
+
+      if (orderA !== undefined || orderB !== undefined) {
+        if (orderA === undefined) {
+          return 1;
+        }
+
+        if (orderB === undefined) {
+          return -1;
+        }
+
+        return orderA - orderB;
+      }
+
+      return String(movieDataA?.name || movieIdA).localeCompare(String(movieDataB?.name || movieIdB));
+    });
+
+  const orderMovieCatalog = (catalog) => Object.fromEntries(getOrderedMovieEntries(catalog));
+
   const loadSupabaseAppState = async () => {
     if (!isRemoteDataEnabled()) {
       throw new Error(SUPABASE_SETUP_MESSAGE);
     }
 
     const [moviesResponse, foodResponse, showsResponse] = await Promise.all([
-      supabase.from("movies").select("*").eq("is_active", true).order("name"),
+      supabase.from("movies").select("*").eq("is_active", true),
       supabase.from("food_items").select("*").eq("is_active", true).order("name"),
       supabase.from("shows").select("*").order("show_date").order("show_time")
     ]);
@@ -832,8 +883,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       menu[row.id] = mapFoodRowToEntry(row);
     });
 
+    const orderedCatalog = orderMovieCatalog(catalog);
+
     const remotePrices = {};
-    Object.entries(catalog).forEach(([movieId, movieData]) => {
+    Object.entries(orderedCatalog).forEach(([movieId, movieData]) => {
       remotePrices[movieId] = clonePriceSet(movieData.defaultPrice);
     });
 
@@ -847,10 +900,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, remotePrices));
 
     return {
-      movieCatalog: catalog,
+      movieCatalog: orderedCatalog,
       foodMenu: menu,
       prices: remotePrices,
-      showCatalog: fillMissingMovieSchedules(catalog, remotePrices, shows)
+      showCatalog: fillMissingMovieSchedules(orderedCatalog, remotePrices, shows)
     };
   };
 
@@ -871,11 +924,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       movieCatalog[movieId] = normalizeMovieEntry(movieData, movieId);
     });
 
-    const prices = normalizePrices({}, movieCatalog);
-    const showCatalog = buildShowCatalog(movieCatalog, prices);
+    const orderedMovieCatalog = orderMovieCatalog(movieCatalog);
+    const prices = normalizePrices({}, orderedMovieCatalog);
+    const showCatalog = buildShowCatalog(orderedMovieCatalog, prices);
 
     return {
-      movieCatalog,
+      movieCatalog: orderedMovieCatalog,
       foodMenu: buildDefaultFoodMenuMap(),
       prices,
       showCatalog
@@ -1328,6 +1382,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       return { regular: 20, silver: 30, gold: 40 };
     }
 
+    if (format === "IMAX") {
+      return { regular: 35, silver: 50, gold: 65 };
+    }
+
     if (format === "4DX") {
       return { regular: 50, silver: 70, gold: 90 };
     }
@@ -1754,7 +1812,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Musical",
       "Sports"
     ];
-    const movieEntries = Object.entries(catalog);
+    const movieEntries = getOrderedMovieEntries(catalog);
     const discoveredGenres = new Set();
 
     movieEntries.forEach(([, movieData]) => {
@@ -3029,7 +3087,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
 
-      const movieOptions = Object.entries(movieCatalog)
+      const movieOptions = getOrderedMovieEntries(movieCatalog)
         .map(([movieId, movieData]) => `<option value="${escapeHtml(movieId)}">${escapeHtml(movieData.name)}</option>`)
         .join("");
 
@@ -3105,6 +3163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <select id="${escapeHtml(show.showId)}Format" name="${escapeHtml(show.showId)}_format">
                       <option value="2D"${show.format === "2D" ? " selected" : ""}>2D</option>
                       <option value="3D"${show.format === "3D" ? " selected" : ""}>3D</option>
+                      <option value="IMAX"${show.format === "IMAX" ? " selected" : ""}>IMAX</option>
                       <option value="4DX"${show.format === "4DX" ? " selected" : ""}>4DX</option>
                     </select>
                   </label>
