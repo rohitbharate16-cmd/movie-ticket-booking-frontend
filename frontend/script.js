@@ -1917,9 +1917,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             <img src="${escapeHtml(movieData.image)}" alt="${escapeHtml(movieData.name)} poster" class="admin-movie-poster">
             <div class="movie-price-card-body">
               <div class="movie-price-card-head">
-                <div>
+                <div class="movie-price-card-summary">
                   <span class="admin-movie-badge">${movieData.isCustom ? "Custom Movie" : "Default Movie"}</span>
                   <h3>${escapeHtml(movieData.name)}</h3>
+                  <p class="movie-price-card-meta">${escapeHtml(movieData.genre)} | ${escapeHtml(movieData.languages)}</p>
                 </div>
                 <div class="movie-price-card-controls">
                   <button type="button" class="movie-delete-btn" data-delete-movie="${escapeHtml(movieId)}">Remove</button>
@@ -1929,7 +1930,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                   </label>
                 </div>
               </div>
-              <p>${escapeHtml(movieData.genre)} | ${escapeHtml(movieData.languages)}</p>
               <div class="price-tier-grid">
                 <label class="price-field" for="${escapeHtml(movieId)}RegularPrice">Regular
                   <input id="${escapeHtml(movieId)}RegularPrice" name="${escapeHtml(movieId)}_regular" type="number" min="1" value="${priceSet.regular}" required>

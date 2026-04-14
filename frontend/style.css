@@ -1980,6 +1980,14 @@ body.login-page {
   margin-bottom: 0.4rem;
 }
 
+.movie-price-card-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
 .movie-price-card-controls {
   display: flex;
   flex-direction: column;
@@ -2039,9 +2047,8 @@ body.login-page {
   text-transform: uppercase;
 }
 
-.movie-price-card-body p {
-  margin-top: 0;
-  margin-bottom: 0.45rem;
+.movie-price-card-meta {
+  margin: 0 0 0.35rem;
   color: #d9e5f8;
   font-size: 0.94rem;
   font-weight: 700;
