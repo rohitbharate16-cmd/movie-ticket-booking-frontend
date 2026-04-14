@@ -1921,14 +1921,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                   <span class="admin-movie-badge">${movieData.isCustom ? "Custom Movie" : "Default Movie"}</span>
                   <h3>${escapeHtml(movieData.name)}</h3>
                 </div>
-                <button type="button" class="movie-delete-btn" data-delete-movie="${escapeHtml(movieId)}">Remove</button>
+                <div class="movie-price-card-controls">
+                  <button type="button" class="movie-delete-btn" data-delete-movie="${escapeHtml(movieId)}">Remove</button>
+                  <label class="movie-order-field" for="${escapeHtml(movieId)}DisplayOrder">
+                    <span class="movie-order-label">Home Order</span>
+                    <input id="${escapeHtml(movieId)}DisplayOrder" name="${escapeHtml(movieId)}_display_order" type="number" min="1" value="${Number(movieData.displayOrder) || ""}" required>
+                  </label>
+                </div>
               </div>
               <p>${escapeHtml(movieData.genre)} | ${escapeHtml(movieData.languages)}</p>
-              <div class="price-tier-grid admin-price-tier-grid">
-                <label class="price-field" for="${escapeHtml(movieId)}DisplayOrder">Home Order
-                  <input id="${escapeHtml(movieId)}DisplayOrder" name="${escapeHtml(movieId)}_display_order" type="number" min="1" value="${Number(movieData.displayOrder) || ""}" required>
-                </label>
-              </div>
               <div class="price-tier-grid">
                 <label class="price-field" for="${escapeHtml(movieId)}RegularPrice">Regular
                   <input id="${escapeHtml(movieId)}RegularPrice" name="${escapeHtml(movieId)}_regular" type="number" min="1" value="${priceSet.regular}" required>

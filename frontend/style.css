@@ -1978,6 +1978,50 @@ body.login-page {
   margin-bottom: 0.7rem;
 }
 
+.movie-price-card-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.7rem;
+  flex: 0 0 auto;
+}
+
+.movie-order-field {
+  width: min(220px, 100%);
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(122, 183, 255, 0.12), rgba(75, 118, 255, 0.06));
+  border: 1px solid rgba(122, 183, 255, 0.26);
+  color: #d8ebff;
+}
+
+.movie-order-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fd0ff;
+}
+
+.movie-order-field input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(122, 183, 255, 0.28);
+  background: rgba(8, 15, 28, 0.72);
+  color: #eef6ff;
+  font-weight: 700;
+}
+
+.movie-order-field input:focus {
+  outline: none;
+  border-color: rgba(122, 183, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(122, 183, 255, 0.16);
+}
+
 .admin-movie-badge {
   display: inline-flex;
   margin-bottom: 0.45rem;
@@ -2422,6 +2466,19 @@ body.trailer-modal-open {
 
   .movie-price-card {
     grid-template-columns: 1fr;
+  }
+
+  .movie-price-card-head {
+    flex-direction: column;
+  }
+
+  .movie-price-card-controls {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .movie-order-field {
+    width: 100%;
   }
 
   .admin-movie-poster {
