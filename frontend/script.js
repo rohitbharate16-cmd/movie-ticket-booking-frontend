@@ -3299,6 +3299,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           movieCatalog[movieId] = normalizeMovieEntry({
             ...movieCatalog[movieId],
+            defaultPrice: {
+              regular: Math.round(regular),
+              silver: Math.round(silver),
+              gold: Math.round(gold)
+            },
             displayOrder
           }, movieId);
           updatedPrices[movieId] = {
@@ -3311,13 +3316,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         prices = updatedPrices;
         try {
           await upsertMoviesToSupabase(
-            Object.keys(updatedPrices).map((movieId) => ({
-              id: movieId,
-              display_order: movieCatalog[movieId].displayOrder,
-              regular_price: updatedPrices[movieId].regular,
-              silver_price: updatedPrices[movieId].silver,
-              gold_price: updatedPrices[movieId].gold
-            }))
+            Object.keys(updatedPrices).map((movieId) => mapMovieEntryToRow(movieId, movieCatalog[movieId]))
           );
         } catch (error) {
           statusNode.textContent = error.message;
